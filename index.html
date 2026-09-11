@@ -1349,7 +1349,7 @@
     /* ---------- Site header / footer ---------- */
     .site-head {
       position: sticky;
-      top: 52px;
+      top: 0;
       z-index: 60;
       background: rgba(255, 255, 255, .92);
       backdrop-filter: blur(10px);
@@ -1710,7 +1710,7 @@
     .app {
       display: grid;
       grid-template-columns: 248px 1fr;
-      min-height: calc(100dvh - 118px);
+      min-height: calc(100dvh - 66px);
       align-items: start;
     }
 
@@ -1723,9 +1723,9 @@
       justify-content: space-between;
       gap: 4px;
       position: sticky;
-      top: 118px;
-      height: calc(100dvh - 118px);
-      max-height: calc(100dvh - 118px);
+      top: 66px;
+      height: calc(100dvh - 66px);
+      max-height: calc(100dvh - 66px);
       box-sizing: border-box;
       overflow-y: auto;
       z-index: 40;
@@ -3201,22 +3201,6 @@
       <line x1="21" y1="12" x2="9" y2="12"></line>
     </symbol>
   </svg>
-
-  <!-- ================= PROTOTYPE NAVIGATOR ================= -->
-  <div class="proto-bar" role="navigation" aria-label="Prototype screens">
-    <span class="brand"><i><svg>
-          <use href="#i-door" />
-        </svg></i>Apartment Bridge</span>
-    <span class="tag">UI/UX DESIGN · 24 SCREENS</span>
-    <label class="sr" for="screenSel">Jump to screen</label>
-    <select id="screenSel"></select>
-    <button class="pn" id="prevScr" aria-label="Previous screen"><svg style="transform:rotate(90deg)">
-        <use href="#i-chev" />
-      </svg></button>
-    <button class="pn" id="nextScr" aria-label="Next screen"><svg style="transform:rotate(-90deg)">
-        <use href="#i-chev" />
-      </svg></button>
-  </div>
 
   <main id="main">
 
@@ -5831,7 +5815,7 @@
      SCREENS 14–16 · AUTH
 ============================================================ -->
     <section class="screen" id="s-login" data-title="13 · Login">
-      <div class="auth" style="min-height:calc(100vh - 52px);display:grid;grid-template-columns:1fr 1fr">
+      <div class="auth" style="min-height:100vh;display:grid;grid-template-columns:1fr 1fr">
         <div style="display:grid;place-items:center;padding:40px 20px">
           <div style="width:min(400px,100%)">
             <a class="logo" href="#/home" onclick="go('home')" style="margin-bottom:34px"><img src="assets/logo.png"
@@ -5901,7 +5885,7 @@
     </section>
 
     <section class="screen" id="s-register" data-title="14 · Register">
-      <div class="auth" style="min-height:calc(100vh - 52px);display:grid;grid-template-columns:1fr 1fr">
+      <div class="auth" style="min-height:100vh;display:grid;grid-template-columns:1fr 1fr">
         <div style="display:grid;place-items:center;padding:40px 20px">
           <div style="width:min(440px,100%)">
             <a class="logo" href="#/home" onclick="go('home')" style="margin-bottom:28px"><img src="assets/logo.png"
@@ -6138,7 +6122,7 @@
     </section>
 
     <section class="screen" id="s-forgot" data-title="15 · Forgot Password">
-      <div class="auth" style="min-height:calc(100vh - 52px);display:grid;grid-template-columns:1fr 1fr">
+      <div class="auth" style="min-height:100vh;display:grid;grid-template-columns:1fr 1fr">
         <div style="display:grid;place-items:center;padding:40px 20px">
           <div style="width:min(400px,100%)">
             <a class="logo" href="#/home" onclick="go('home')" style="margin-bottom:34px"><img src="assets/logo.png"
@@ -7022,7 +7006,7 @@
 ============================================================ -->
     <section class="screen" id="s-pm" data-title="22 · Property Manager Portal">
       <header class="site-head"
-        style="position:sticky;top:52px;z-index:60;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)">
+        style="position:sticky;top:0;z-index:60;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)">
         <div class="container in" style="display:flex;align-items:center;justify-content:space-between;height:66px">
           <div style="display:flex;align-items:center;gap:12px">
             <a class="logo" href="#/home" onclick="go('home')">
@@ -8907,7 +8891,9 @@
     /* ============ Router ============ */
     const screens = [...document.querySelectorAll(".screen")];
     const sel = document.getElementById("screenSel");
-    screens.forEach(s => { const o = document.createElement("option"); o.value = s.id.slice(2); o.textContent = s.dataset.title; sel.appendChild(o) });
+    if (sel) {
+      screens.forEach(s => { const o = document.createElement("option"); o.value = s.id.slice(2); o.textContent = s.dataset.title; sel.appendChild(o) });
+    }
     function go(key) {
       closeUserDropdown();
       const authedScreens = ['dashboard', 'applications', 'favorites', 'saved-searches', 'notifications', 'profile'];
@@ -8923,7 +8909,8 @@
         setRegStep(1);
       }
       screens.forEach(s => s.classList.toggle("on", s.id === "s-" + key));
-      sel.value = key; try {
+      if (sel) sel.value = key;
+      try {
         history.replaceState(null, "", "#/" + key)
         initLeafletMaps();
         refreshLeafletSizes();
@@ -8931,9 +8918,11 @@
       window.scrollTo({ top: 0 });
       requestAnimationFrame(() => document.querySelectorAll(".screen.on .acc.open .pane").forEach(p => p.style.maxHeight = p.scrollHeight + "px"));
     }
-    sel.addEventListener("change", () => go(sel.value));
-    document.getElementById("prevScr").onclick = () => { const i = screens.findIndex(s => s.classList.contains("on")); go(screens[(i - 1 + screens.length) % screens.length].id.slice(2)) };
-    document.getElementById("nextScr").onclick = () => { const i = screens.findIndex(s => s.classList.contains("on")); go(screens[(i + 1) % screens.length].id.slice(2)) };
+    if (sel) sel.addEventListener("change", () => go(sel.value));
+    const prevScrBtn = document.getElementById("prevScr");
+    if (prevScrBtn) prevScrBtn.onclick = () => { const i = screens.findIndex(s => s.classList.contains("on")); go(screens[(i - 1 + screens.length) % screens.length].id.slice(2)) };
+    const nextScrBtn = document.getElementById("nextScr");
+    if (nextScrBtn) nextScrBtn.onclick = () => { const i = screens.findIndex(s => s.classList.contains("on")); go(screens[(i + 1) % screens.length].id.slice(2)) };
     let startKey = "home"; try { startKey = (location.hash.replace("#/", "") || "home").replace(/[^a-z-]/g, "") || "home" } catch (e) { }
     go(startKey);
     if (!document.querySelector(".screen.on")) go("home");
