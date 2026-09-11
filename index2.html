@@ -1324,7 +1324,7 @@
       display: flex;
       gap: 8px;
       align-items: stretch;
-      max-width: 780px
+      max-width: 860px
     }
 
     .searchbox .cell {
@@ -1876,16 +1876,29 @@
       grid-template-rows: 190px 190px;
       gap: 10px;
       border-radius: var(--r-lg);
-      overflow: hidden
+      overflow: hidden;
     }
 
     .gallery>div {
       position: relative;
-      cursor: pointer
+      cursor: pointer;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+
+    .gallery>div img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .gallery>div:hover img {
+      transform: scale(1.04);
     }
 
     .gallery>div:first-child {
-      grid-row: span 2
+      grid-row: span 2;
     }
 
     .gallery .more {
@@ -1896,14 +1909,298 @@
       background: rgba(20, 41, 61, .45);
       color: #fff;
       font-weight: 700;
-      font-size: var(--fs-sm)
+      font-size: var(--fs-sm);
+      transition: background 0.2s ease;
+    }
+
+    .gallery>div:hover .more {
+      background: rgba(15, 23, 42, 0.7) !important;
     }
 
     @media(max-width:760px) {
       .gallery {
         grid-template-columns: 1fr 1fr;
-        grid-template-rows: 200px 110px
+        grid-template-rows: 200px 110px;
       }
+    }
+
+    /* Lightbox Photo Gallery Modal */
+    .gallery-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: rgba(8, 15, 26, 0.94);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: none;
+      flex-direction: column;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .gallery-modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .gallery-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 28px;
+      color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(15, 23, 42, 0.4);
+    }
+
+    .gallery-modal-body {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      padding: 12px 28px;
+      overflow: hidden;
+      user-select: none;
+      gap: 20px;
+    }
+
+    .gallery-modal-main-img-wrap {
+      max-width: 1060px;
+      max-height: calc(100vh - 230px);
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+    }
+
+    .gallery-modal-img {
+      max-width: 100%;
+      max-height: calc(100vh - 280px);
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.7);
+      transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .gallery-modal-btn {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .gallery-modal-btn:hover {
+      background: rgba(255, 255, 255, 0.28);
+      transform: scale(1.08);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.25);
+    }
+
+    .gallery-modal-btn:active {
+      transform: scale(0.96);
+    }
+
+    .gallery-modal-footer {
+      padding: 14px 28px;
+      background: rgba(15, 23, 42, 0.7);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .gallery-thumbnails-track {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      max-width: 100%;
+      padding: 4px 2px;
+      scrollbar-width: thin;
+    }
+
+    .gallery-thumb-item {
+      width: 68px;
+      height: 46px;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      opacity: 0.55;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .gallery-thumb-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .gallery-thumb-item:hover {
+      opacity: 0.88;
+      transform: translateY(-2px);
+    }
+
+    .gallery-thumb-item.active {
+      opacity: 1;
+      border-color: #38bdf8;
+      transform: scale(1.06);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+    }
+
+    /* Favorites Active State */
+    .fav.on,
+    .fav-any.on,
+    .btn-icon.fav-any.on,
+    .btn-icon.on {
+      background: #fee2e2 !important;
+      border-color: #f87171 !important;
+      color: #ef4444 !important;
+    }
+
+    .fav.on svg,
+    .fav-any.on svg,
+    .btn-icon.fav-any.on svg,
+    .btn-icon.on svg {
+      fill: #ef4444 !important;
+      stroke: #ef4444 !important;
+      animation: heartPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes heartPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.35); }
+      100% { transform: scale(1); }
+    }
+
+    /* Universal Toast Notification */
+    .app-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 100000;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 12px 20px;
+      border-radius: var(--r-md, 12px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+    }
+
+    .app-toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* General Dialog Modal Styles */
+    .app-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 99990;
+      background: rgba(10, 20, 32, 0.78);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-y: auto;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .app-modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .app-modal-dialog {
+      background: #ffffff;
+      border-radius: 18px;
+      max-width: 680px;
+      width: 100%;
+      max-height: calc(100vh - 40px);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.4);
+      border: 1px solid var(--line, #e2e8f0);
+      overflow: hidden;
+      transform: scale(0.96) translateY(10px);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .app-modal-overlay.active .app-modal-dialog {
+      transform: scale(1) translateY(0);
+    }
+
+    .app-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--line, #e2e8f0);
+      background: var(--bg-1, #f8fafc);
+      flex-shrink: 0;
+    }
+
+    .app-modal-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--blue-700, #1D6FB8), var(--green-600, #2FA271));
+      display: grid;
+      place-items: center;
+      box-shadow: 0 4px 10px rgba(29, 111, 184, 0.3);
+    }
+
+    .app-modal-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid var(--line-2, #cbd5e1);
+      background: #fff;
+      color: var(--mut, #51667A);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+
+    .app-modal-close:hover {
+      background: #fee2e2;
+      color: #ef4444;
+      border-color: #fca5a5;
+    }
+
+    .app-modal-content {
+      padding: 24px;
+      overflow-y: auto;
+      flex: 1;
     }
 
     /* misc */
@@ -2247,6 +2544,22 @@
     .user-dropdown-links a:hover { background: var(--blue-50, #eff6ff) !important; color: var(--blue-800, #1e40af) !important; }
     .app-side a.logout-btn:hover { background: var(--red-100, #fee2e2) !important; color: var(--red-800, #991b1b) !important; }
   
+  
+    .pm-table-scroll-wrap::-webkit-scrollbar {
+      height: 8px;
+    }
+    .pm-table-scroll-wrap::-webkit-scrollbar-track {
+      background: var(--bg-2, #f1f5f9);
+      border-radius: 4px;
+    }
+    .pm-table-scroll-wrap::-webkit-scrollbar-thumb {
+      background: var(--blue-400, #93c5fd);
+      border-radius: 4px;
+    }
+    .pm-table-scroll-wrap::-webkit-scrollbar-thumb:hover {
+      background: var(--blue-600, #2563eb);
+    }
+
   </style>
   <!-- Leaflet OpenStreetMap CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -2342,6 +2655,22 @@
       </symbol>
       <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
         <path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01" />
+      </symbol>
+      <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+      </symbol>
+      <symbol id="i-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </symbol>
+      <symbol id="i-pic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+        <circle cx="8.5" cy="8.5" r="1.5"/>
+        <polyline points="21 15 16 10 5 21"/>
       </symbol>
       <symbol id="i-split" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linejoin="round">
@@ -2489,7 +2818,7 @@
     <span class="brand"><i><svg>
           <use href="#i-door" />
         </svg></i>Doorway</span>
-    <span class="tag">UI/UX DESIGN · 22 SCREENS</span>
+    <span class="tag">UI/UX DESIGN · 24 SCREENS</span>
     <label class="sr" for="screenSel">Jump to screen</label>
     <select id="screenSel"></select>
     <button class="pn" id="prevScr" aria-label="Previous screen"><svg style="transform:rotate(90deg)">
@@ -2693,6 +3022,14 @@
               before you apply.</p>
           </div>
           <form class="searchbox" onsubmit="go('search');return false" aria-label="Search affordable housing">
+            <div class="cell" style="max-width:130px">
+              <label for="h-action">Action</label>
+              <select id="h-action" style="font-weight:600">
+                <option value="rent" selected>Rent</option>
+                <option value="buy">Buy</option>
+              </select>
+            </div>
+            <div class="div"></div>
             <div class="cell">
               <label for="h-where">Where</label>
               <input id="h-where" placeholder="City, ZIP, county, or state" value="Sacramento, CA">
@@ -3212,11 +3549,30 @@
             class="sep">/</span><a href="#/search" onclick="go('search')">Sacramento, CA</a><span
             class="sep">/</span><span>Cedar Grove Commons</span></nav>
 
+        <!-- Real Photo Gallery -->
         <div class="gallery" style="margin-top:16px">
-          <div class="ph g1" role="img" aria-label="Courtyard photo"></div>
-          <div class="ph g3" role="img" aria-label="Kitchen photo"></div>
-          <div class="ph g4" role="img" aria-label="Bedroom photo"></div>
-          <div class="ph g2" role="img" aria-label="Playground photo"><span class="more">+ 14 photos</span></div>
+          <div onclick="openGalleryModal(0)" title="View photo: Courtyard &amp; Building Exterior">
+            <img src="assets/prop-1.jpg" alt="Cedar Grove Commons Courtyard &amp; Modern Residential Building"
+              loading="lazy">
+          </div>
+          <div onclick="openGalleryModal(1)" title="View photo: Modern Living Room &amp; Kitchen">
+            <img src="assets/prop-2.jpg" alt="Modern Interior Living Room &amp; Kitchen" loading="lazy">
+          </div>
+          <div onclick="openGalleryModal(2)" title="View photo: Spacious Master Bedroom &amp; Balcony">
+            <img src="assets/prop-4.jpg" alt="Spacious Master Bedroom &amp; Balcony" loading="lazy">
+          </div>
+          <div onclick="openGalleryModal(3)" title="View photo: Community Resident Lounge &amp; Amenities">
+            <img src="assets/prop-5.jpg" alt="Community Lounge &amp; Resident Amenities" loading="lazy">
+          </div>
+          <div onclick="openGalleryModal(4)" title="View all 10 property photos">
+            <img src="assets/cat-family.jpg" alt="Courtyard Gardens &amp; Community Playground" loading="lazy">
+            <span class="more"
+              style="background:rgba(15,23,42,0.55);backdrop-filter:blur(2px);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">
+              <svg style="width:16px;height:16px">
+                <use href="#i-pic" />
+              </svg> + 14 photos
+            </span>
+          </div>
         </div>
 
         <div style="display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:34px;margin-top:26px" class="prop-cols">
@@ -3424,7 +3780,7 @@
               <div style="display:flex;gap:12px;align-items:center"><span class="avatar"
                   style="width:44px;height:44px">CG</span><span class="sm"><b>Leasing office</b><br><span
                     class="xs mut">Managed by BRIDGE Housing · replies in ~1 day</span></span></div>
-              <button class="btn btn-primary btn-lg">Apply / join waitlist</button>
+              <button class="btn btn-primary btn-lg" onclick="openApplyModal()">Apply / join waitlist</button>
               <button class="btn btn-outline"><svg>
                   <use href="#i-mail" />
                 </svg> Message the property</button>
@@ -4001,9 +4357,9 @@
         </div>
 
         <div class="grid g3">
-          <article class="card hov prop">
+          <article class="card hov prop" onclick="openResourceModal(0)" style="cursor:pointer">
             <div class="media">
-              <div class="ph g3"></div>
+              <img src="assets/res-sec8.jpg" alt="Section 8 Application Walkthrough" class="prop-img" loading="lazy">
               <div class="tags"><span class="badge b-ink">Guide · 12 min</span></div>
             </div>
             <div class="body"><b>The complete Section 8 application walkthrough</b>
@@ -4012,9 +4368,9 @@
                 →</span>
             </div>
           </article>
-          <article class="card hov prop">
+          <article class="card hov prop" onclick="openResourceModal(1)" style="cursor:pointer">
             <div class="media">
-              <div class="ph g5"></div>
+              <img src="assets/res-interview.jpg" alt="Income Certification Interview" class="prop-img" loading="lazy">
               <div class="tags"><span class="badge b-red"><svg>
                     <use href="#i-play" />
                   </svg> Video · 6 min</span></div>
@@ -4024,9 +4380,9 @@
                 class="xs" style="color:var(--blue-700);font-weight:700">Watch →</span>
             </div>
           </article>
-          <article class="card hov prop">
+          <article class="card hov prop" onclick="openResourceModal(2)" style="cursor:pointer">
             <div class="media">
-              <div class="ph g2"></div>
+              <img src="assets/res-waitlist.jpg" alt="Waitlist Organization Strategy" class="prop-img" loading="lazy">
               <div class="tags"><span class="badge b-ink">Article · 5 min</span></div>
             </div>
             <div class="body"><b>Waitlist strategy: apply wide, stay organized</b>
@@ -4034,9 +4390,9 @@
               <span class="xs" style="color:var(--blue-700);font-weight:700">Read →</span>
             </div>
           </article>
-          <article class="card hov prop">
+          <article class="card hov prop" onclick="openResourceModal(3)" style="cursor:pointer">
             <div class="media">
-              <div class="ph g4"></div>
+              <img src="assets/res-checklist.jpg" alt="Document Checklist" class="prop-img" loading="lazy">
               <div class="tags"><span class="badge b-green">Download</span></div>
             </div>
             <div class="body"><b>Document checklist (PDF, 5 languages)</b>
@@ -4047,9 +4403,9 @@
                 </svg> Download →</span>
             </div>
           </article>
-          <article class="card hov prop">
+          <article class="card hov prop" onclick="openResourceModal(4)" style="cursor:pointer">
             <div class="media">
-              <div class="ph g1"></div>
+              <img src="assets/res-disability.jpg" alt="Renting with a Disability" class="prop-img" loading="lazy">
               <div class="tags"><span class="badge b-ink">Guide · 9 min</span></div>
             </div>
             <div class="body"><b>Renting with a disability: your rights</b>
@@ -4057,9 +4413,9 @@
               </p><span class="xs" style="color:var(--blue-700);font-weight:700">Read the guide →</span>
             </div>
           </article>
-          <article class="card hov prop">
+          <article class="card hov prop" onclick="openResourceModal(5)" style="cursor:pointer">
             <div class="media">
-              <div class="ph g6"></div>
+              <img src="assets/res-scam.jpg" alt="Rental Scam Prevention" class="prop-img" loading="lazy">
               <div class="tags"><span class="badge b-red"><svg>
                     <use href="#i-play" />
                   </svg> Video · 4 min</span></div>
@@ -4472,70 +4828,237 @@
             <div class="card pad" style="margin-top:28px">
               <div style="display:flex;gap:12px;align-items:center"><span class="ic-tile"
                   style="background:rgba(255,255,255,.2);color:#fff"><svg style="width:20px;height:20px">
-                    <use href="#i-bell" />
-                  </svg></span><span class="sm"><b>Instant waitlist notification</b><br><span class="xs"
-                    style="opacity:.85">SMS &amp; email alerts within 60 seconds</span></span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+                  <section class="screen" id="s-register" data-title="14 · Register">
+      <div class="auth" style="min-height:calc(100vh - 52px);display:grid;grid-template-columns:1fr 1fr">
+        <div style="display:grid;place-items:center;padding:40px 20px">
+          <div style="width:min(440px,100%)">
+            <a class="logo" href="#/home" onclick="go('home')" style="margin-bottom:28px"><img src="assets/logo.png"
+                alt="Apartment Bridge" style="height:42px;width:auto;display:block"></a>
+            <h1 style="font-size:var(--fs-h3);margin:20px 0 6px" id="rg-title">Create your free account</h1>
+            <p class="sm mut" style="margin-bottom:8px" id="rg-subtitle">Save homes, get alerts, and see your match
+              score on every listing.</p>
 
-    <section class="screen" id="s-register" data-title="14 · Register">
-      <div
-        style="min-height:calc(100vh - 52px);display:grid;place-items:center;padding:40px 20px;background:radial-gradient(40rem 24rem at 80% -10%,rgba(49,164,111,.12),transparent),radial-gradient(40rem 24rem at 0% 110%,rgba(42,130,196,.12),transparent)">
-        <div class="card pad" style="width:min(520px,100%);padding:34px">
-          <a class="logo" href="#/home" onclick="go('home')"><span class="mk"><svg>
-                <use href="#i-door" />
-              </svg></span>Doorway</a>
-          <h1 style="font-size:var(--fs-h3);margin:22px 0 6px">Create your free account</h1>
-          <p class="sm mut" style="margin-bottom:8px">Save homes, get alerts, and see your match score on every listing.
-          </p>
-          <div style="display:flex;gap:6px;margin:16px 0 22px" aria-hidden="true">
-            <span style="flex:1;height:5px;border-radius:3px;background:var(--green-500)"></span>
-            <span style="flex:1;height:5px;border-radius:3px;background:var(--line)"></span>
-            <span style="flex:1;height:5px;border-radius:3px;background:var(--line)"></span>
+            <!-- Step Progress Indicators -->
+            <div style="display:flex;gap:6px;margin:14px 0 16px" aria-hidden="true" id="rg-bars">
+              <span id="rg-bar-1"
+                style="flex:1;height:5px;border-radius:3px;background:var(--blue-700);transition:background .3s"></span>
+              <span id="rg-bar-2"
+                style="flex:1;height:5px;border-radius:3px;background:var(--line);transition:background .3s"></span>
+              <span id="rg-bar-3"
+                style="flex:1;height:5px;border-radius:3px;background:var(--line);transition:background .3s"></span>
+            </div>
+            <p class="xs mut" style="margin:-8px 0 16px;font-weight:600" id="rg-step-label">Step 1 of 3 · Account basics
+              — next: household &amp; vouchers</p>
+
+            <!-- STEP 1: Account basics -->
+            <form id="rg-form-1" style="display:grid;gap:14px" onsubmit="setRegStep(2);return false">
+              <div class="grid g2" style="gap:12px">
+                <div class="field"><label for="rg-first">First name</label><input class="input" id="rg-first"
+                    autocomplete="given-name" placeholder="First name" required value="Maria"></div>
+                <div class="field"><label for="rg-last">Last name</label><input class="input" id="rg-last"
+                    autocomplete="family-name" placeholder="Last name" required value="Rodriguez"></div>
+              </div>
+              <div class="field"><label for="rg-email">Email</label><input class="input" id="rg-email" type="email"
+                  autocomplete="email" placeholder="you@example.com" required value="maria@example.com"></div>
+              <div class="field"><label for="rg-pass">Create password</label>
+                <div style="position:relative">
+                  <input class="input" id="rg-pass" type="password" autocomplete="new-password"
+                    placeholder="At least 8 characters" required value="sacramento2026!" style="padding-right:44px">
+                  <button type="button" class="pw-eye" aria-label="Show password"><svg style="width:18px;height:18px">
+                      <use href="#i-eye" />
+                    </svg></button>
+                </div>
+                <p class="hint">At least 8 characters. A phrase like "blue-door-morning" works great.</p>
+              </div>
+              <div class="field"><label for="rg-role">I am a…</label><select class="select" id="rg-role" onchange="updateRegRoleFlow()">
+                  <option value="renter" selected>Renter or housing seeker</option>
+                  <option value="caseworker">Case worker / helping someone</option>
+                  <option value="pm">Property manager</option>
+                </select></div>
+              <button class="btn btn-primary btn-lg" type="submit">Continue to Step 2 <svg
+                  style="width:18px;height:18px">
+                  <use href="#i-arr" />
+                </svg></button>
+              <p class="sm mut" style="margin-top:10px;text-align:center">Already a member? <a href="#/login"
+                  onclick="go('login')"><b>Sign in</b></a></p>
+            </form>
+
+            <!-- STEP 2 (RENTER): Household & Vouchers -->
+            <form id="rg-form-2-renter" style="display:none;gap:14px" onsubmit="setRegStep(3);return false">
+              <div class="field">
+                <label for="rg-hh">How many people will live in the home?</label>
+                <div style="display:flex;align-items:center;gap:12px">
+                  <select class="select" id="rg-hh" style="max-width:140px">
+                    <option>1 person</option>
+                    <option>2 people</option>
+                    <option>3 people</option>
+                    <option selected>4 people</option>
+                    <option>5+ people</option>
+                  </select>
+                  <span class="xs mut">Includes yourself, family &amp; dependants.</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="rg-inc">Estimated annual household income</label>
+                <input class="input" id="rg-inc" value="$42,000" placeholder="$42,000 / year">
+                <p class="hint">Before taxes. Used strictly to calculate HUD AMI percentage matches.</p>
+              </div>
+              <div
+                style="display:grid;gap:8px;background:var(--bg);padding:12px;border-radius:var(--r-md);border:1px solid var(--line)">
+                <label class="check"><input type="checkbox" id="rg-vou" checked> Someone in my household has a Housing
+                  Choice Voucher (Sec. 8)</label>
+                <label class="check"><input type="checkbox" id="rg-sen"> Everyone in household is 62+ (Senior
+                  Housing)</label>
+                <label class="check"><input type="checkbox" id="rg-acc"> We need wheelchair or accessibility
+                  features</label>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:4px">
+                <button class="btn btn-outline" type="button" onclick="setRegStep(1)"><svg
+                    style="width:16px;height:16px;transform:rotate(180deg)">
+                    <use href="#i-arr" />
+                  </svg> Back</button>
+                <button class="btn btn-primary btn-lg" type="submit" style="flex:1">Continue to Step 3 <svg
+                    style="width:18px;height:18px">
+                    <use href="#i-arr" />
+                  </svg></button>
+              </div>
+            </form>
+
+            <!-- STEP 2 (PROPERTY MANAGER): Organization & Portfolio -->
+            <form id="rg-form-2-pm" style="display:none;gap:14px" onsubmit="setRegStep(3);return false">
+              <div class="field">
+                <label for="rg-pm-org">Organization / Management Company *</label>
+                <input class="input" id="rg-pm-org" required value="BRIDGE Housing · Northern California" placeholder="e.g. BRIDGE Housing, Mercy Housing">
+                <p class="hint">Verified against California state affordable housing operator registry.</p>
+              </div>
+              <div class="grid g2" style="gap:12px">
+                <div class="field">
+                  <label for="rg-pm-title">Your Role *</label>
+                  <select class="select" id="rg-pm-title">
+                    <option selected>Property Manager / Leasing Director</option>
+                    <option>Regional Compliance Manager</option>
+                    <option>Affordable Housing Operator / Owner</option>
+                    <option>Asset Management</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="rg-pm-size">Portfolio Size *</label>
+                  <select class="select" id="rg-pm-size">
+                    <option>1–50 units</option>
+                    <option selected>51–250 units</option>
+                    <option>250–1,000 units</option>
+                    <option>1,000+ units</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label for="rg-pm-phone">Business Contact Phone *</label>
+                <input class="input" id="rg-pm-phone" type="tel" value="(916) 555-0142" placeholder="(916) 555-0142">
+              </div>
+              <div
+                style="display:grid;gap:8px;background:var(--bg);padding:12px;border-radius:var(--r-md);border:1px solid var(--line)">
+                <div class="xs mut" style="font-weight:700;color:var(--ink)">Programs Managed:</div>
+                <label class="check"><input type="checkbox" checked> LIHTC (Low-Income Housing Tax Credit)</label>
+                <label class="check"><input type="checkbox" checked> Section 8 Project-Based Vouchers (PBV) / HAP</label>
+                <label class="check"><input type="checkbox"> Section 202 Supportive Housing for the Elderly</label>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:4px">
+                <button class="btn btn-outline" type="button" onclick="setRegStep(1)"><svg
+                    style="width:16px;height:16px;transform:rotate(180deg)">
+                    <use href="#i-arr" />
+                  </svg> Back</button>
+                <button class="btn btn-primary btn-lg" type="submit" style="flex:1">Continue to Step 3 <svg
+                    style="width:18px;height:18px">
+                    <use href="#i-arr" />
+                  </svg></button>
+              </div>
+            </form>
+
+            <!-- STEP 3 (RENTER): Preferences & Alerts -->
+            <form id="rg-form-3-renter" style="display:none;gap:14px" onsubmit="handleRegisterComplete(event);return false">
+              <div class="field">
+                <label for="rg-city">Where are you searching for housing?</label>
+                <select class="select" id="rg-city">
+                  <option selected>Sacramento County, CA</option>
+                  <option>Houston (Harris County), TX</option>
+                  <option>Columbus (Franklin County), OH</option>
+                  <option>Phoenix (Maricopa County), AZ</option>
+                  <option>Denver County, CO</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="rg-beds">Bedrooms needed</label>
+                <select class="select" id="rg-beds">
+                  <option>Any size</option>
+                  <option>Studio / 1 Bedroom</option>
+                  <option selected>2–3 Bedrooms</option>
+                  <option>4+ Bedrooms</option>
+                </select>
+              </div>
+              <div
+                style="display:grid;gap:8px;background:var(--bg);padding:12px;border-radius:var(--r-md);border:1px solid var(--line)">
+                <label class="check"><input type="checkbox" checked> Email me immediately when a matching waitlist
+                  opens</label>
+                <label class="check"><input type="checkbox" checked> Send weekly digest of newly added affordable
+                  listings</label>
+              </div>
+              <p class="xs mut" style="line-height:1.4">By clicking Create Account you agree to the <a href="#/terms"
+                  onclick="go('terms')">Terms of Service</a> and <a href="#/privacy" onclick="go('privacy')">Privacy
+                  Policy</a>. We never sell your data.</p>
+              <div style="display:flex;gap:10px;margin-top:4px">
+                <button class="btn btn-outline" type="button" onclick="setRegStep(2)"><svg
+                    style="width:16px;height:16px;transform:rotate(180deg)">
+                    <use href="#i-arr" />
+                  </svg> Back</button>
+                <button class="btn btn-primary btn-lg" type="submit" style="flex:1">Create account &amp; view matches
+                  <svg style="width:18px;height:18px">
+                  <use href="#i-arr" />
+                </svg></button>
+              </div>
+            </form>
+
+            <!-- STEP 3 (PROPERTY MANAGER): Syndication & Compliance Setup -->
+            <form id="rg-form-3-pm" style="display:none;gap:14px" onsubmit="handleRegisterComplete(event);return false">
+              <div class="field">
+                <label for="rg-pm-market">Primary Operating Market / County</label>
+                <select class="select" id="rg-pm-market">
+                  <option selected>Sacramento County &amp; Central Valley, CA</option>
+                  <option>San Francisco Bay Area, CA</option>
+                  <option>Los Angeles &amp; Southern California</option>
+                  <option>Multi-State Portfolio</option>
+                </select>
+              </div>
+              <div
+                style="display:grid;gap:8px;background:var(--bg);padding:12px;border-radius:var(--r-md);border:1px solid var(--line)">
+                <label class="check"><input type="checkbox" checked> Auto-screen applicant eligibility against TCAC &amp; HUD AMI criteria</label>
+                <label class="check"><input type="checkbox" checked> Enable Section 8 Housing Choice Voucher pre-screening</label>
+                <label class="check"><input type="checkbox" checked> Instant SMS &amp; email alerts when waitlist applications arrive</label>
+              </div>
+              <p class="xs mut" style="line-height:1.4">By creating a Manager Account you verify authorization to represent the specified organization under Fair Housing laws.</p>
+              <div style="display:flex;gap:10px;margin-top:4px">
+                <button class="btn btn-outline" type="button" onclick="setRegStep(2)"><svg
+                    style="width:16px;height:16px;transform:rotate(180deg)">
+                    <use href="#i-arr" />
+                  </svg> Back</button>
+                <button class="btn btn-primary btn-lg" type="submit" style="flex:1">Create manager account &amp; open portal
+                  <svg style="width:18px;height:18px">
+                    <use href="#i-arr" />
+                  </svg></button>
+              </div>
+            </form>
+
           </div>
-          <p class="xs mut" style="margin:-14px 0 18px;font-weight:600">Step 1 of 3 · Account basics — next: household,
-            then preferences (both optional)</p>
-          <form style="display:grid;gap:16px" onsubmit="go('dashboard');return false">
-            <div class="grid g2" style="gap:14px">
-              <div class="field"><label for="rg-first">First name</label><input class="input" id="rg-first"
-                  autocomplete="given-name"></div>
-              <div class="field"><label for="rg-last">Last name</label><input class="input" id="rg-last"
-                  autocomplete="family-name"></div>
-            </div>
-            <div class="field"><label for="rg-email">Email</label><input class="input" id="rg-email" type="email"
-                autocomplete="email"></div>
-            <div class="field"><label for="rg-pass">Create password</label><input class="input" id="rg-pass"
-                type="password" autocomplete="new-password">
-              <p class="hint">At least 8 characters. A phrase like "blue-door-morning" works great.</p>
-            </div>
-            <div class="field"><label for="rg-role">I am a…</label><select class="select" id="rg-role">
-                <option>Renter or housing seeker</option>
-                <option>Case worker / helping someone</option>
-                <option>Property manager</option>
-              </select></div>
-            <label class="check"><input type="checkbox" checked> Email me new listings and open waitlists in my
-              area</label>
-            <button class="btn btn-green btn-lg" type="submit">Continue</button>
-            <p class="xs mut">By continuing you agree to the Terms and Privacy Policy. We never sell your information.
-            </p>
-          </form>
-          <p class="sm mut" style="margin-top:18px">Already a member? <a href="#/login" onclick="go('login')"><b>Sign
-                in</b></a></p>
         </div>
-      </div>
-    </section<div class="hide-auth-art">
+        <div class="hide-auth-art">
           <div style="max-width:400px">
-            <p class="disp">"The alert came at 7am. I applied by 7:15 and got the apartment."</p>
-            <p class="sm" style="opacity:.9;margin-top:14px">— Keisha T., moved into Willow Park Flats, Denver</p>
+            <p class="disp" id="rg-side-quote">"The alert came at 7am. I applied by 7:15 and got the apartment."</p>
+            <p class="sm" id="rg-side-author" style="opacity:.9;margin-top:14px">— Keisha T., moved into Willow Park Flats, Denver</p>
             <div class="card pad" style="margin-top:28px">
               <div style="display:flex;gap:12px;align-items:center"><span class="ic-tile"
                   style="background:rgba(255,255,255,.2);color:#fff"><svg style="width:20px;height:20px">
                     <use href="#i-bell" />
-                  </svg></span><span class="sm"><b>Instant waitlist notification</b><br><span class="xs"
-                    style="opacity:.85">SMS &amp; email alerts within 60 seconds</span></span></div>
+                  </svg></span><span class="sm"><b id="rg-side-badge-title">Instant waitlist notification</b><br><span class="xs"
+                    id="rg-side-badge-sub" style="opacity:.85">SMS &amp; email alerts within 60 seconds</span></span></div>
             </div>
           </div>
         </div>
@@ -4543,26 +5066,26 @@
     </section>
 
     <section class="screen" id="s-forgot" data-title="15 · Forgot Password">
-      <div style="min-height:calc(100vh - 52px);display:grid;place-items:center;padding:40px 20px">
-        <div class="card pad" style="width:min(440px,100%);padding:34px;text-align:center">
-          <span class="ic-tile t-blue" style="margin:0 auto 16px"><svg>
-              <use href="#i-key" />
-            </svg></span>
-          <h1 style="font-size:var(--fs-h3)">Reset your password</h1>
-          <p class="sm mut" style="margin:8px 0 22px">Enter your email and we'll send a secure reset link. It stays
-            valid for 30 minutes.</p>
-          <form style="display:grid;gap:14px;text-align:left"
-            onsubmit="this.innerHTML='<div class=\'alert ok\'><b>Link sent.</b>&nbsp;Check your inbox (and spam folder) for an email from Doorway.</div>';return false">
-            <div class="field"><label for="fp-email">Email</label><input class="input" id="fp-email" type="email"
-                required placeholder="you@example.com"></div>
-            <button class="btn btn-primary btn-lg" type="submit">Send reset link</button>
-          </form>
-          <p class="sm" style="margin-top:20px"><a href="#/login" onclick="go('login')">← Back to sign in</a></p>
-          <hr class="hr">
-          <p class="xs mut">No email access anymore? Call (800) 555-0134 and we'll verify you by phone.</p>
+      <div class="auth" style="min-height:calc(100vh - 52px);display:grid;grid-template-columns:1fr 1fr">
+        <div style="display:grid;place-items:center;padding:40px 20px">
+          <div style="width:min(400px,100%)">
+            <a class="logo" href="#/home" onclick="go('home')" style="margin-bottom:34px"><img src="assets/logo.png"
+                alt="Apartment Bridge" style="height:42px;width:auto;display:block"></a>
+            <h1 style="font-size:var(--fs-h3);margin:26px 0 6px">Reset your password</h1>
+            <p class="sm mut" style="margin-bottom:24px">Enter your email and we'll send a secure reset link valid for
+              30 minutes.</p>
+            <form style="display:grid;gap:16px"
+              onsubmit="this.innerHTML='<div class=\'alert ok\'><b>Link sent.</b>&nbsp;Check your inbox for an email from Apartment Bridge.</div>';return false">
+              <div class="field"><label for="fp-email">Email address</label><input class="input" id="fp-email"
+                  type="email" required placeholder="you@example.com"></div>
+              <button class="btn btn-primary btn-lg" type="submit">Send reset link</button>
+            </form>
+            <p class="sm" style="margin-top:22px"><a href="#/login" onclick="go('login')">← Back to sign in</a></p>
+            <hr class="hr" style="margin:20px 0">
+            <p class="xs mut">No email access anymore? Call (800) 555-0134 and we'll verify you by phone.</p>
+          </div>
         </div>
-      </div>
-    </section<div class="hide-auth-art">
+        <div class="hide-auth-art">
           <div style="max-width:400px">
             <p class="disp">"The alert came at 7am. I applied by 7:15 and got the apartment."</p>
             <p class="sm" style="opacity:.9;margin-top:14px">— Keisha T., moved into Willow Park Flats, Denver</p>
@@ -4615,13 +5138,7 @@
                 <p class="d">Active search alerts</p>
                 <p class="tr">5 new matches</p>
               </div>
-              <div class="card stat"><span class="ic t-amber"><svg>
-                    <use href="#i-doc" />
-                  </svg></span>
-                <p class="n">2</p>
-                <p class="d">Applications in progress</p>
-                <p class="tr">1 needs documents</p>
-              </div>
+              <div class="card stat" style="cursor:pointer;border:2px solid var(--amber-400,#f59e0b)" onclick="go('applications')"><span class="ic t-amber"><svg><use href="#i-doc" /></svg></span><p class="n">4</p><p class="d">Applications &amp; waitlists</p><p class="tr" style="color:var(--amber-700);font-weight:700">1 action needed</p></div>
               <div class="card stat"><span class="ic t-violet"><svg>
                     <use href="#i-calc" />
                   </svg></span>
@@ -4651,10 +5168,7 @@
                       <use href="#i-inbox" />
                     </svg></span><span class="sm" style="flex:1"><b>Harbor Point Apts</b> replied to your question about
                     parking<br><span class="xs mut">Yesterday</span></span></div>
-                <div class="notif"><span class="ic t-amber"><svg>
-                      <use href="#i-doc" />
-                    </svg></span><span class="sm" style="flex:1">Your application to <b>Willow Park Flats</b> needs pay
-                    stubs<br><span class="xs mut">2 days ago</span></span></div>
+                <div class="notif" style="cursor:pointer" onclick="go('applications')"><span class="ic t-amber"><svg><use href="#i-doc" /></svg></span><span class="sm" style="flex:1">Your application to <b>Willow Park Flats</b> needs pay stubs<br><span class="xs mut">2 days ago</span></span><span class="badge b-amber" style="font-size:11px">Upload</span></div>
               </div>
               <div class="card pad">
                 <b class="sm">Profile completeness</b>
@@ -4689,7 +5203,368 @@
       </div>
     </section>
 
-    <section class="screen" id="s-favorites" data-title="17 · My Favorites">
+    <!-- ============================================================
+     SCREEN 17 · APPLICATIONS & WAITLISTS
+============================================================ -->
+    <section class="screen" id="s-applications" data-title="17 · Applications & Waitlists">
+      <div data-header data-active="" data-authed="1"></div>
+      <div class="app">
+        <nav class="app-side" data-appside data-active="applications" aria-label="Account"></nav>
+        <div class="app-main">
+          <div class="container">
+            <!-- Page Head -->
+            <div class="pagehead" style="flex-wrap:wrap;gap:14px;align-items:flex-start">
+              <div>
+                <h1 style="font-size:var(--fs-h3);margin:0 0 4px">Applications &amp; Waitlists</h1>
+                <p class="sm mut">Track all 4 submitted housing applications, waitlist positions, and required compliance documents.</p>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                <button class="btn btn-outline" onclick="exportApplicationsPDF()"><svg style="width:16px;height:16px"><use href="#i-doc"/></svg> Export PDF Report</button>
+                <button class="btn btn-primary" onclick="go('search')"><svg style="width:16px;height:16px"><use href="#i-plus"/></svg> Find More Homes</button>
+              </div>
+            </div>
+
+            <!-- Summary KPI Cards -->
+            <div class="grid g4" style="gap:16px;margin-bottom:24px">
+              <div class="card stat" style="background:var(--card);border:1px solid var(--line);cursor:pointer" onclick="filterUserApps('all')">
+                <span class="ic t-blue"><svg><use href="#i-doc" /></svg></span>
+                <p class="n">4</p>
+                <p class="d">Total applied</p>
+                <p class="tr">3 active · 1 under review</p>
+              </div>
+              <div class="card stat" style="background:var(--card);border:1px solid var(--line);cursor:pointer" onclick="filterUserApps('waitlist')">
+                <span class="ic t-green"><svg><use href="#i-clock" /></svg></span>
+                <p class="n">2</p>
+                <p class="d">Active waitlists</p>
+                <p class="tr" style="color:var(--green-700);font-weight:700">Cedar Grove #14 · Marigold #3</p>
+              </div>
+              <div class="card stat" style="background:var(--card);border:2px solid var(--amber-400,#f59e0b);box-shadow:0 4px 12px rgba(245,158,11,0.12);cursor:pointer" onclick="filterUserApps('action')">
+                <span class="ic t-amber"><svg><use href="#i-warn" /></svg></span>
+                <p class="n" style="color:var(--amber-700)">1</p>
+                <p class="d">Action required</p>
+                <p class="tr" style="color:var(--amber-700);font-weight:700">Pay stub needed (Willow Park)</p>
+              </div>
+              <div class="card stat" style="background:var(--card);border:1px solid var(--line)">
+                <span class="ic t-violet"><svg><use href="#i-calc" /></svg></span>
+                <p class="n">33% AMI</p>
+                <p class="d">Eligibility status</p>
+                <p class="tr">Pre-screened for TCAC &amp; HUD</p>
+              </div>
+            </div>
+
+            <!-- Priority Alert for Action Required -->
+            <div id="user-app-urgent-alert" class="alert warn" style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
+              <div style="display:flex;gap:12px;align-items:center">
+                <svg style="width:22px;height:22px;color:var(--amber-700);flex-shrink:0"><use href="#i-warn" /></svg>
+                <span><b>Action Needed by Aug 25:</b> Willow Park Flats requested your latest 30-day pay stub to verify AMI qualification before waitlist review.</span>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="openUserUploadDocModal('Willow Park Flats', 'Pay Stubs / Income Proof')">
+                <svg style="width:14px;height:14px"><use href="#i-up" /></svg> Upload Pay Stub Now
+              </button>
+            </div>
+
+            <!-- Filter Tabs & Search Bar -->
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap">
+              <div style="display:flex;gap:8px;flex-wrap:wrap" id="user-app-filter-tabs">
+                <button class="btn btn-sm btn-primary user-filter-btn" data-cat="all" onclick="filterUserApps('all', this)" style="border-radius:20px">All Applications (4)</button>
+                <button class="btn btn-sm btn-outline user-filter-btn" data-cat="waitlist" onclick="filterUserApps('waitlist', this)" style="border-radius:20px">Active Waitlists (2)</button>
+                <button class="btn btn-sm btn-outline user-filter-btn" data-cat="action" onclick="filterUserApps('action', this)" style="border-radius:20px">Action Needed (1)</button>
+                <button class="btn btn-sm btn-outline user-filter-btn" data-cat="review" onclick="filterUserApps('review', this)" style="border-radius:20px">Under Review (1)</button>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center">
+                <div style="position:relative;width:240px">
+                  <input type="text" class="input" placeholder="Search applications..." oninput="searchUserApps(this.value)" style="height:36px;font-size:13px;padding-left:32px">
+                  <svg style="position:absolute;left:10px;top:10px;width:15px;height:15px;color:var(--mut)"><use href="#i-search"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Applications List -->
+            <div style="display:grid;gap:18px" id="user-apps-list">
+              
+              <!-- App Card 1: Cedar Grove Commons -->
+              <div class="card pad user-app-card" data-cat="waitlist" data-name="cedar grove commons" style="padding:22px;border-left:4px solid var(--blue-700)">
+                <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+                  <div style="width:100px;height:78px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--bg)">
+                    <img src="assets/prop-1.jpg" alt="Cedar Grove Commons" style="width:100%;height:100%;object-fit:cover">
+                  </div>
+                  <div style="flex:1;min-width:280px">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+                      <div>
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+                          <h3 style="margin:0;font-size:18px;font-weight:800;color:var(--ink)">Cedar Grove Commons</h3>
+                          <span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-weight:700">● Waitlist Position #14 of 42</span>
+                          <span class="badge b-line">LIHTC 50% AMI</span>
+                          <span class="badge b-line">Section 8 PBV</span>
+                        </div>
+                        <p class="xs mut" style="margin:0">1420 Garden Highway, Sacramento, CA 95833 · Application ID: <b>#AB-2026-8941</b> · Submitted Aug 14, 2026</p>
+                      </div>
+                      <div style="text-align:right">
+                        <div style="font-size:18px;font-weight:800;color:var(--blue-700)">$980 <span style="font-size:12px;color:var(--mut);font-weight:500">/ mo</span></div>
+                        <div class="xs mut">2 Bedroom · 1 Bath</div>
+                      </div>
+                    </div>
+
+                    <!-- Progress Stepper -->
+                    <div style="margin:16px 0;padding:14px 16px;background:var(--bg);border-radius:10px;border:1px solid var(--line)">
+                      <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:10px;display:flex;justify-content:space-between">
+                        <span>Application Status &amp; Timeline:</span>
+                        <span style="color:var(--blue-700)">Next Estimated Review: Sept 2026</span>
+                      </div>
+                      <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;position:relative">
+                        <div style="text-align:center">
+                          <div style="width:24px;height:24px;border-radius:50%;background:var(--green-500);color:#fff;display:grid;place-items:center;margin:0 auto 4px;font-size:12px;font-weight:700">✓</div>
+                          <div style="font-size:11.5px;font-weight:700;color:var(--ink)">Submitted</div>
+                          <div style="font-size:10.5px;color:var(--mut)">Aug 14, 2026</div>
+                        </div>
+                        <div style="text-align:center">
+                          <div style="width:24px;height:24px;border-radius:50%;background:var(--green-500);color:#fff;display:grid;place-items:center;margin:0 auto 4px;font-size:12px;font-weight:700">✓</div>
+                          <div style="font-size:11.5px;font-weight:700;color:var(--ink)">Pre-Screened</div>
+                          <div style="font-size:10.5px;color:var(--mut)">Aug 16, 2026</div>
+                        </div>
+                        <div style="text-align:center">
+                          <div style="width:24px;height:24px;border-radius:50%;background:var(--blue-700);color:#fff;display:grid;place-items:center;margin:0 auto 4px;font-size:12px;font-weight:700;box-shadow:0 0 0 4px rgba(37,99,235,0.2)">3</div>
+                          <div style="font-size:11.5px;font-weight:700;color:var(--blue-700)">On Waitlist (#14)</div>
+                          <div style="font-size:10.5px;color:var(--blue-700);font-weight:600">Active Queue</div>
+                        </div>
+                        <div style="text-align:center;opacity:0.6">
+                          <div style="width:24px;height:24px;border-radius:50%;background:var(--line);color:var(--mut);display:grid;place-items:center;margin:0 auto 4px;font-size:12px;font-weight:700">4</div>
+                          <div style="font-size:11.5px;font-weight:700;color:var(--ink)">Unit Offer &amp; Lease</div>
+                          <div style="font-size:10.5px;color:var(--mut)">Pending vacancy</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Footer Actions -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+                      <div style="font-size:12px;color:var(--mut)">
+                        <b>Manager:</b> BRIDGE Housing Leasing Office · <a href="tel:9165550142" style="color:var(--blue-700);text-decoration:none">(916) 555-0142</a>
+                      </div>
+                      <div style="display:flex;gap:8px">
+                        <button class="btn btn-ghost btn-sm" onclick="openAppDetailsModal('Cedar Grove Commons', '#AB-2026-8941', 'Waitlist Position #14', 'Aug 14, 2026', '2 Bedroom / 1 Bath ($980/mo)', 'BRIDGE Housing Northern California')">View Details</button>
+                        <button class="btn btn-outline btn-sm" onclick="go('property')">View Listing</button>
+                        <button class="btn btn-primary btn-sm" onclick="downloadWaitlistCertificate('Cedar Grove Commons', '#AB-2026-8941', 14)"><svg style="width:14px;height:14px"><use href="#i-doc"/></svg> Proof Certificate</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- App Card 2: Willow Park Flats -->
+              <div class="card pad user-app-card" data-cat="action" data-name="willow park flats" style="padding:22px;border-left:4px solid var(--amber-500,#f59e0b)">
+                <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+                  <div style="width:100px;height:78px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--bg)">
+                    <img src="assets/prop-2.jpg" alt="Willow Park Flats" style="width:100%;height:100%;object-fit:cover">
+                  </div>
+                  <div style="flex:1;min-width:280px">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+                      <div>
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+                          <h3 style="margin:0;font-size:18px;font-weight:800;color:var(--ink)">Willow Park Flats</h3>
+                          <span class="badge" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;font-weight:700">⚠ Action Required · Missing Pay Stub</span>
+                          <span class="badge b-line">LIHTC 60% AMI</span>
+                          <span class="badge b-line">Voucher OK</span>
+                        </div>
+                        <p class="xs mut" style="margin:0">880 Riverfront Street, Sacramento, CA 95814 · Application ID: <b>#AB-2026-7730</b> · Submitted Aug 10, 2026</p>
+                      </div>
+                      <div style="text-align:right">
+                        <div style="font-size:18px;font-weight:800;color:var(--blue-700)">$1,150 <span style="font-size:12px;color:var(--mut);font-weight:500">/ mo</span></div>
+                        <div class="xs mut">3 Bedroom · 2 Bath</div>
+                      </div>
+                    </div>
+
+                    <!-- Alert Box inside Card -->
+                    <div style="margin:14px 0;padding:12px 14px;background:#fffbeb;border-radius:8px;border:1px solid #fde68a;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+                      <div style="font-size:12.5px;color:#92400e;display:flex;gap:8px;align-items:center">
+                        <svg style="width:18px;height:18px;color:#b45309;flex-shrink:0"><use href="#i-warn"/></svg>
+                        <span>Please upload your <b>two most recent pay stubs</b> for Maria Reyes to complete TCAC household income audit.</span>
+                      </div>
+                      <button class="btn btn-primary btn-sm" onclick="openUserUploadDocModal('Willow Park Flats', 'Recent 30-Day Pay Stubs')" style="background:#b45309;border-color:#b45309">
+                        <svg style="width:14px;height:14px"><use href="#i-up"/></svg> Upload Document
+                      </button>
+                    </div>
+
+                    <!-- Progress Stepper -->
+                    <div style="margin:16px 0;padding:14px 16px;background:var(--bg);border-radius:10px;border:1px solid var(--line)">
+                      <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;position:relative">
+                        <div style="text-align:center">
+                          <div style="width:24px;height:24px;border-radius:50%;background:var(--green-500);color:#fff;display:grid;place-items:center;margin:0 auto 4px;font-size:12px;font-weight:700">✓</div>
+                          <div style="font-size:11.5px;font-weight:700;color:var(--ink)">Submitted</div>
+                          <div style="font-size:10.5px;color:var(--mut)">Aug 10, 2026</div>
+                        </div>
+                        <div style="text-align:center">
+                          <div style="width:24px;height:24px;border-radius:50%;background:#f59e0b;color:#fff;display:grid;place-items:center;margin:0 auto 4px;font-size:12px;font-weight:700;box-shadow:0 0 0 4px rgba(245,158,11,0.2)">!</div>
+                          <div style="font-size:11.5px;font-weight:700;color:#b45309">Doc Review</div>
+                          <div style="font-size:10.5px;color:#b45309;font-weight:600">Action Needed</div>
+                        </div>
+                        <div style="text-align:center;opacity:0.6">
+                          <div style="width:24px;height:24px;border-radius:50%;background:var(--line);color:var(--mut);display:grid;place-items:center;margin:0 auto 4px;font-size:12px;font-weight:700">3</div>
+                          <div style="font-size:11.5px;font-weight:700;color:var(--ink)">Manager Review</div>
+                          <div style="font-size:10.5px;color:var(--mut)">Pending docs</div>
+                        </div>
+                        <div style="text-align:center;opacity:0.6">
+                          <div style="width:24px;height:24px;border-radius:50%;background:var(--line);color:var(--mut);display:grid;place-items:center;margin:0 auto 4px;font-size:12px;font-weight:700">4</div>
+                          <div style="font-size:11.5px;font-weight:700;color:var(--ink)">Waitlist Confirmation</div>
+                          <div style="font-size:10.5px;color:var(--mut)">Estimated Aug 28</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Footer Actions -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+                      <div style="font-size:12px;color:var(--mut)">
+                        <b>Manager:</b> Mercy Housing Management · <a href="tel:9165550189" style="color:var(--blue-700);text-decoration:none">(916) 555-0189</a>
+                      </div>
+                      <div style="display:flex;gap:8px">
+                        <button class="btn btn-ghost btn-sm" onclick="openAppDetailsModal('Willow Park Flats', '#AB-2026-7730', 'Action Required · Document Review', 'Aug 10, 2026', '3 Bedroom / 2 Bath ($1,150/mo)', 'Mercy Housing California')">View Details</button>
+                        <button class="btn btn-outline btn-sm" onclick="go('property')">View Listing</button>
+                        <button class="btn btn-primary btn-sm" onclick="openUserUploadDocModal('Willow Park Flats', 'Recent 30-Day Pay Stubs')"><svg style="width:14px;height:14px"><use href="#i-up"/></svg> Upload Pay Stub</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- App Card 3: Marigold Senior & Family Villas -->
+              <div class="card pad user-app-card" data-cat="waitlist" data-name="marigold senior villas" style="padding:22px;border-left:4px solid var(--green-600)">
+                <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+                  <div style="width:100px;height:78px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--bg)">
+                    <img src="assets/prop-5.jpg" alt="Marigold Senior Villas" style="width:100%;height:100%;object-fit:cover">
+                  </div>
+                  <div style="flex:1;min-width:280px">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+                      <div>
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+                          <h3 style="margin:0;font-size:18px;font-weight:800;color:var(--ink)">Marigold Senior &amp; Family Villas</h3>
+                          <span class="badge" style="background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;font-weight:700">★ Top 5 Waitlist · Position #3</span>
+                          <span class="badge b-line">Section 8 PBV</span>
+                          <span class="badge b-line">Accessible Unit</span>
+                        </div>
+                        <p class="xs mut" style="margin:0">9210 Elk Grove Blvd, Elk Grove, CA 95624 · Application ID: <b>#AB-2026-6215</b> · Submitted Jul 28, 2026</p>
+                      </div>
+                      <div style="text-align:right">
+                        <div style="font-size:18px;font-weight:800;color:var(--blue-700)">$895 <span style="font-size:12px;color:var(--mut);font-weight:500">/ mo</span></div>
+                        <div class="xs mut">2 Bedroom Accessible</div>
+                      </div>
+                    </div>
+
+                    <!-- Progress Stepper -->
+                    <div style="margin:16px 0;padding:14px 16px;background:var(--bg);border-radius:10px;border:1px solid var(--line)">
+                      <div style="font-size:12px;font-weight:700;color:var(--green-700);margin-bottom:10px;display:flex;justify-content:space-between">
+                        <span>★ High Priority Position: You are #3 in queue for next available 2BR</span>
+                        <span>Estimated Move-in: Sept–Oct 2026</span>
+                      </div>
+                      <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;position:relative">
+                        <div style="text-align:center">
+                          <div style="width:24px;height:24px;border-radius:50%;background:var(--green-500);color:#fff;display:grid;place-items:center;margin:0 auto 4px;font-size:12px;font-weight:700">✓</div>
+                          <div style="font-size:11.5px;font-weight:700;color:var(--ink)">Submitted</div>
+                          <div style="font-size:10.5px;color:var(--mut)">Jul 28, 2026</div>
+                        </div>
+                        <div style="text-align:center">
+                          <div style="width:24px;height:24px;border-radius:50%;background:var(--green-500);color:#fff;display:grid;place-items:center;margin:0 auto 4px;font-size:12px;font-weight:700">✓</div>
+                          <div style="font-size:11.5px;font-weight:700;color:var(--ink)">Eligibility Verified</div>
+                          <div style="font-size:10.5px;color:var(--mut)">Aug 02, 2026</div>
+                        </div>
+                        <div style="text-align:center">
+                          <div style="width:24px;height:24px;border-radius:50%;background:var(--green-600);color:#fff;display:grid;place-items:center;margin:0 auto 4px;font-size:12px;font-weight:700;box-shadow:0 0 0 4px rgba(5,150,105,0.2)">★</div>
+                          <div style="font-size:11.5px;font-weight:700;color:var(--green-700)">Position #3</div>
+                          <div style="font-size:10.5px;color:var(--green-700);font-weight:600">Top 5 Queue</div>
+                        </div>
+                        <div style="text-align:center;opacity:0.7">
+                          <div style="width:24px;height:24px;border-radius:50%;background:var(--blue-50);color:var(--blue-700);border:1px solid var(--blue-400);display:grid;place-items:center;margin:0 auto 4px;font-size:12px;font-weight:700">4</div>
+                          <div style="font-size:11.5px;font-weight:700;color:var(--ink)">Interview &amp; Offer</div>
+                          <div style="font-size:10.5px;color:var(--blue-700);font-weight:600">Expected soon</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Footer Actions -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+                      <div style="font-size:12px;color:var(--mut)">
+                        <b>Manager:</b> Mutual Housing California · <a href="tel:9165550233" style="color:var(--blue-700);text-decoration:none">(916) 555-0233</a>
+                      </div>
+                      <div style="display:flex;gap:8px">
+                        <button class="btn btn-ghost btn-sm" onclick="openAppDetailsModal('Marigold Senior & Family Villas', '#AB-2026-6215', 'Waitlist Position #3 (Top 5)', 'Jul 28, 2026', '2 Bedroom Accessible ($895/mo)', 'Mutual Housing California')">View Details</button>
+                        <button class="btn btn-outline btn-sm" onclick="go('property')">View Listing</button>
+                        <button class="btn btn-primary btn-sm" onclick="downloadWaitlistCertificate('Marigold Senior & Family Villas', '#AB-2026-6215', 3)"><svg style="width:14px;height:14px"><use href="#i-doc"/></svg> Proof Certificate</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- App Card 4: Riverline Flats -->
+              <div class="card pad user-app-card" data-cat="review" data-name="riverline flats" style="padding:22px;border-left:4px solid var(--line-2,#cbd5e1)">
+                <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+                  <div style="width:100px;height:78px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--bg)">
+                    <img src="assets/prop-4.jpg" alt="Riverline Flats" style="width:100%;height:100%;object-fit:cover">
+                  </div>
+                  <div style="flex:1;min-width:280px">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+                      <div>
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+                          <h3 style="margin:0;font-size:18px;font-weight:800;color:var(--ink)">Riverline Flats</h3>
+                          <span class="badge" style="background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;font-weight:700">● Lottery Sorting in Progress</span>
+                          <span class="badge b-line">Workforce Housing</span>
+                          <span class="badge b-line">80% AMI</span>
+                        </div>
+                        <p class="xs mut" style="margin:0">550 Riverfront Way, Sacramento, CA 95814 · Application ID: <b>#AB-2026-5082</b> · Lottery Entry #8841</p>
+                      </div>
+                      <div style="text-align:right">
+                        <div style="font-size:18px;font-weight:800;color:var(--blue-700)">$750 <span style="font-size:12px;color:var(--mut);font-weight:500">/ mo</span></div>
+                        <div class="xs mut">1 Bedroom · 1 Bath</div>
+                      </div>
+                    </div>
+
+                    <!-- Progress Stepper -->
+                    <div style="margin:16px 0;padding:14px 16px;background:var(--bg);border-radius:10px;border:1px solid var(--line)">
+                      <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;position:relative">
+                        <div style="text-align:center">
+                          <div style="width:24px;height:24px;border-radius:50%;background:var(--green-500);color:#fff;display:grid;place-items:center;margin:0 auto 4px;font-size:12px;font-weight:700">✓</div>
+                          <div style="font-size:11.5px;font-weight:700;color:var(--ink)">Submitted</div>
+                          <div style="font-size:10.5px;color:var(--mut)">Aug 18, 2026</div>
+                        </div>
+                        <div style="text-align:center">
+                          <div style="width:24px;height:24px;border-radius:50%;background:var(--blue-700);color:#fff;display:grid;place-items:center;margin:0 auto 4px;font-size:12px;font-weight:700;box-shadow:0 0 0 4px rgba(37,99,235,0.2)">2</div>
+                          <div style="font-size:11.5px;font-weight:700;color:var(--blue-700)">Lottery Closes</div>
+                          <div style="font-size:10.5px;color:var(--blue-700);font-weight:600">Aug 24, 2026</div>
+                        </div>
+                        <div style="text-align:center;opacity:0.6">
+                          <div style="width:24px;height:24px;border-radius:50%;background:var(--line);color:var(--mut);display:grid;place-items:center;margin:0 auto 4px;font-size:12px;font-weight:700">3</div>
+                          <div style="font-size:11.5px;font-weight:700;color:var(--ink)">Lottery Ranking</div>
+                          <div style="font-size:10.5px;color:var(--mut)">Results on Sept 1</div>
+                        </div>
+                        <div style="text-align:center;opacity:0.6">
+                          <div style="width:24px;height:24px;border-radius:50%;background:var(--line);color:var(--mut);display:grid;place-items:center;margin:0 auto 4px;font-size:12px;font-weight:700">4</div>
+                          <div style="font-size:11.5px;font-weight:700;color:var(--ink)">Eligibility Audit</div>
+                          <div style="font-size:10.5px;color:var(--mut)">Pending draw</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Footer Actions -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+                      <div style="font-size:12px;color:var(--mut)">
+                        <b>Manager:</b> Sacramento Housing &amp; Redevelopment Agency · <a href="tel:9165550900" style="color:var(--blue-700);text-decoration:none">(916) 555-0900</a>
+                      </div>
+                      <div style="display:flex;gap:8px">
+                        <button class="btn btn-ghost btn-sm" onclick="openAppDetailsModal('Riverline Flats', '#AB-2026-5082', 'Lottery Sorting (Draw Aug 24)', 'Aug 18, 2026', '1 Bedroom / 1 Bath ($750/mo)', 'SHRA Sacramento')">View Details</button>
+                        <button class="btn btn-outline btn-sm" onclick="go('property')">View Listing</button>
+                        <button class="btn btn-outline btn-sm" onclick="withdrawUserApp('Riverline Flats', this)" style="color:var(--red-700);border-color:#fecaca">Withdraw</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="screen" id="s-favorites" data-title="18 · My Favorites">
       <div data-header data-active="" data-authed="1"></div>
       <div class="app">
         <nav class="app-side" data-appside data-active="favorites" aria-label="Account"></nav>
@@ -4723,7 +5598,7 @@
       </div>
     </section>
 
-    <section class="screen" id="s-saved-searches" data-title="18 · Saved Searches & Alerts">
+    <section class="screen" id="s-saved-searches" data-title="19 · Saved Searches & Alerts">
       <div data-header data-active="" data-authed="1"></div>
       <div class="app">
         <nav class="app-side" data-appside data-active="saved-searches" aria-label="Account"></nav>
@@ -4804,7 +5679,7 @@
       </div>
     </section>
 
-    <section class="screen" id="s-notifications" data-title="19 · Notifications">
+    <section class="screen" id="s-notifications" data-title="20 · Notifications">
       <div data-header data-active="" data-authed="1"></div>
       <div class="app">
         <nav class="app-side" data-appside data-active="notifications" aria-label="Account"></nav>
@@ -4867,7 +5742,7 @@
       </div>
     </section>
 
-            <section class="screen" id="s-profile" data-title="20 · Profile &amp; Household">
+            <section class="screen" id="s-profile" data-title="21 · Profile &amp; Household">
       <div data-header data-active="" data-authed="1"></div>
       <div class="app">
         <nav class="app-side" data-appside data-active="profile" aria-label="Account"></nav>
@@ -5043,7 +5918,7 @@
     <!-- ============================================================
      SCREEN 22 · PROPERTY MANAGER PORTAL
 ============================================================ -->
-    <section class="screen" id="s-pm" data-title="21 · Property Manager Portal">
+    <section class="screen" id="s-pm" data-title="22 · Property Manager Portal">
       <div style="background:var(--card);border-bottom:1px solid var(--line)">
         <div class="container" style="display:flex;align-items:center;gap:18px;height:62px">
           <a class="logo" href="#/home" onclick="go('home')"><span class="mk"
@@ -5092,11 +5967,6 @@
                   <h1 style="font-size:var(--fs-h3)">BRIDGE Housing · Sacramento</h1>
                   <p class="sm mut">12 listings · Premium plan · data verified daily</p>
                 </div>
-                <div style="display:flex;gap:10px"><button class="btn btn-outline"><svg>
-                      <use href="#i-search" />
-                    </svg> Claim a property</button><button class="btn btn-primary"><svg>
-                      <use href="#i-plus" />
-                    </svg> Add listing</button></div>
               </div>
               <div class="grid g4" style="gap:16px">
                 <div class="card stat"><span class="ic t-blue"><svg>
@@ -5163,13 +6033,400 @@
               </div>
             </div>
 
-            <!-- PM: Listings -->
+            <!-- PM: Inquiries & Applications -->
+                        <!-- PM: Inquiries & Applications -->
+                        <!-- PM: Inquiries & Applications -->
+            <div class="pm-pane" data-pane="inquiries" hidden>
+              <!-- Page Header -->
+              <div class="pagehead" style="flex-wrap:wrap;gap:16px;align-items:flex-start;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--line,#e2e8f0)">
+                <div>
+                  <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;flex-wrap:wrap">
+                    <h1 style="font-size:var(--fs-h2,1.8rem);margin:0;font-weight:800;color:var(--ink)">Applicant Inquiries &amp; Applications</h1>
+                    <span class="badge b-blue" style="font-size:11px;padding:3px 8px;font-weight:700">14 Active Leads</span>
+                  </div>
+                  <p class="sm mut" style="margin:0">Process incoming rental applications, waitlist submissions, and tenant inquiries across all 12 properties.</p>
+                </div>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                  <button class="btn btn-outline btn-sm" onclick="alert('Exporting 14 applications & inquiries to CSV...')" style="height:36px"><svg style="width:15px;height:15px"><use href="#i-doc"/></svg> Export CSV</button>
+                  <button class="btn btn-primary btn-sm" onclick="openPmReviewModal('Maria Reyes', 'Cedar Grove Commons', '4 Persons · $42,000/yr', 'Section 8 PBV', 'Waitlist Queue #14', 'assets/avatar-maria.jpg')" style="height:36px"><svg style="width:15px;height:15px"><use href="#i-check"/></svg> Quick Pre-Screen</button>
+                </div>
+              </div>
+
+              <!-- Top KPI Stats Row -->
+              <div class="grid g4" style="gap:16px;margin-bottom:24px">
+                <div class="card stat" style="padding:16px 18px;border-radius:14px;background:var(--card,#fff);box-shadow:var(--sh-1);cursor:pointer;border:1px solid var(--line,#e2e8f0)" onclick="filterPmInquiries('all')">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <span class="ic t-blue" style="width:36px;height:36px;border-radius:10px;display:grid;place-items:center;margin:0">
+                      <svg style="width:18px;height:18px"><use href="#i-inbox" /></svg>
+                    </span>
+                    <span class="badge b-blue" style="font-size:10.5px;padding:2px 7px">+5 this week</span>
+                  </div>
+                  <p class="n" style="font-size:1.8rem;font-weight:800;color:var(--ink);margin:0 0 2px">14</p>
+                  <p class="d" style="font-size:12.5px;font-weight:600;color:var(--mut);margin:0">Total Inquiries &amp; Apps</p>
+                </div>
+
+                <div class="card stat" style="padding:16px 18px;border-radius:14px;background:var(--card,#fff);box-shadow:0 4px 14px rgba(245,158,11,0.12);border:2px solid var(--amber-400,#f59e0b);cursor:pointer" onclick="filterPmInquiries('app')">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <span class="ic t-amber" style="width:36px;height:36px;border-radius:10px;display:grid;place-items:center;margin:0">
+                      <svg style="width:18px;height:18px"><use href="#i-warn" /></svg>
+                    </span>
+                    <span class="badge b-amber" style="font-size:10.5px;padding:2px 7px;background:#fef3c7;color:#92400e">Action needed</span>
+                  </div>
+                  <p class="n" style="font-size:1.8rem;font-weight:800;color:var(--amber-700);margin:0 0 2px">5</p>
+                  <p class="d" style="font-size:12.5px;font-weight:600;color:var(--mut);margin:0">Pending Verification</p>
+                </div>
+
+                <div class="card stat" style="padding:16px 18px;border-radius:14px;background:var(--card,#fff);box-shadow:var(--sh-1);cursor:pointer;border:1px solid var(--line,#e2e8f0)" onclick="filterPmInquiries('voucher')">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <span class="ic t-green" style="width:36px;height:36px;border-radius:10px;display:grid;place-items:center;margin:0">
+                      <svg style="width:18px;height:18px"><use href="#i-check" /></svg>
+                    </span>
+                    <span class="badge b-green" style="font-size:10.5px;padding:2px 7px">HUD Pre-Screened</span>
+                  </div>
+                  <p class="n" style="font-size:1.8rem;font-weight:800;color:var(--ink);margin:0 0 2px">8</p>
+                  <p class="d" style="font-size:12.5px;font-weight:600;color:var(--mut);margin:0">Voucher Holders (Sec. 8)</p>
+                </div>
+
+                <div class="card stat" style="padding:16px 18px;border-radius:14px;background:var(--card,#fff);box-shadow:var(--sh-1);cursor:pointer;border:1px solid var(--line,#e2e8f0)" onclick="filterPmInquiries('waitlist')">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <span class="ic t-violet" style="width:36px;height:36px;border-radius:10px;display:grid;place-items:center;margin:0">
+                      <svg style="width:18px;height:18px"><use href="#i-clock" /></svg>
+                    </span>
+                    <span class="badge b-green" style="font-size:10.5px;padding:2px 7px">2.4h Avg Response</span>
+                  </div>
+                  <p class="n" style="font-size:1.8rem;font-weight:800;color:var(--ink);margin:0 0 2px">6</p>
+                  <p class="d" style="font-size:12.5px;font-weight:600;color:var(--mut);margin:0">Active Waitlist Queues</p>
+                </div>
+              </div>
+
+              <!-- Filter & Search Toolbar Card -->
+              <div class="card pad" style="padding:14px 18px;border-radius:14px;margin-bottom:20px;background:var(--card,#fff);box-shadow:var(--sh-1);display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap">
+                <!-- Left: Filter Pills -->
+                <div style="display:flex;gap:6px;flex-wrap:wrap" id="pm-inquiry-filter-chips">
+                  <button class="chip on pm-inquiry-chip" onclick="filterPmInquiries('all', this)" style="padding:6px 12px;font-size:12.5px">All Inquiries (14)</button>
+                  <button class="chip pm-inquiry-chip" onclick="filterPmInquiries('app', this)" style="padding:6px 12px;font-size:12.5px">Applications (5)</button>
+                  <button class="chip pm-inquiry-chip" onclick="filterPmInquiries('waitlist', this)" style="padding:6px 12px;font-size:12.5px">Waitlists (6)</button>
+                  <button class="chip pm-inquiry-chip" onclick="filterPmInquiries('tour', this)" style="padding:6px 12px;font-size:12.5px">Tours (3)</button>
+                  <button class="chip pm-inquiry-chip" onclick="filterPmInquiries('voucher', this)" style="padding:6px 12px;font-size:12.5px">Voucher Verified (8)</button>
+                </div>
+                
+                <!-- Right: Search & Property Filter -->
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                  <div style="position:relative;width:220px">
+                    <input type="text" class="input" placeholder="Search applicants..." oninput="searchPmInquiries(this.value)" style="height:36px;font-size:12.5px;padding-left:32px;border-radius:8px">
+                    <svg style="position:absolute;left:10px;top:10px;width:14px;height:14px;color:var(--mut)"><use href="#i-search"/></svg>
+                  </div>
+                  <select class="select" style="height:36px;font-size:12.5px;max-width:180px;border-radius:8px" onchange="filterPmInquiriesByProp(this.value)">
+                    <option value="all">All 12 Properties</option>
+                    <option value="Cedar Grove Commons">Cedar Grove Commons</option>
+                    <option value="Willow Park Flats">Willow Park Flats</option>
+                    <option value="Marigold Senior Villas">Marigold Senior Villas</option>
+                    <option value="Riverline Flats">Riverline Flats</option>
+                    <option value="Fernwood Court">Fernwood Court</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Inquiries Table Card with Bottom Horizontal Scroll -->
+              <div class="card" style="border-radius:14px;box-shadow:var(--sh-1);border:1px solid var(--line,#e2e8f0);background:#fff">
+                
+                <div class="pm-table-scroll-wrap" style="overflow-x:auto;overflow-y:hidden;width:100%;-webkit-overflow-scrolling:touch;padding-bottom:4px">
+                  <table class="tbl" style="width:100%;min-width:1320px;border-collapse:collapse;white-space:nowrap" id="pm-inquiries-table">
+                    <thead>
+                      <tr style="background:var(--bg,#f8fafc);border-bottom:1.5px solid var(--line,#e2e8f0)">
+                        <th style="padding:14px 20px;text-align:left;font-size:11.5px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">Applicant Details</th>
+                        <th style="padding:14px 20px;text-align:left;font-size:11.5px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">Community &amp; Requested Unit</th>
+                        <th style="padding:14px 20px;text-align:left;font-size:11.5px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">Household &amp; Income Verification</th>
+                        <th style="padding:14px 20px;text-align:left;font-size:11.5px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">Application Status &amp; Queue</th>
+                        <th style="padding:14px 20px;text-align:left;font-size:11.5px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">Submitted</th>
+                        <th style="padding:14px 20px;text-align:right;font-size:11.5px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Row 1: Maria Reyes -->
+                      <tr class="pm-inquiry-row" data-cat="app voucher" data-prop="Cedar Grove Commons" style="border-bottom:1px solid var(--line,#e2e8f0);transition:background .15s">
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <div style="display:flex;align-items:center;gap:12px;white-space:nowrap">
+                            <span class="avatar-circle" style="width:40px;height:40px;overflow:hidden;padding:0;flex-shrink:0;border:2px solid var(--blue-200,#bfdbfe)"><img src="assets/avatar-maria.jpg" alt="Maria Reyes" style="width:100%;height:100%;object-fit:cover;display:block"></span>
+                            <div style="display:flex;align-items:center;gap:10px;white-space:nowrap">
+                              <span style="font-weight:800;color:var(--ink);font-size:14.5px">Maria Reyes</span>
+                              <span class="xs mut">·</span>
+                              <span class="xs mut">maria@example.com</span>
+                              <span class="xs mut">·</span>
+                              <span class="xs mut">(916) 555-0198</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <div style="display:flex;align-items:center;gap:10px;white-space:nowrap">
+                            <span style="font-weight:700;font-size:14px;color:var(--ink)">Cedar Grove Commons</span>
+                            <span class="badge b-line" style="font-size:11px;padding:2px 8px;font-weight:600">2BR Unit #204</span>
+                            <span style="font-weight:800;color:var(--blue-700);font-size:13.5px">$980/mo</span>
+                          </div>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <div style="display:flex;align-items:center;gap:8px;white-space:nowrap">
+                            <span style="font-size:13.5px;font-weight:700;color:var(--ink)">4 Persons · $42,000/yr</span>
+                            <span class="badge b-blue" style="font-size:10.5px;padding:2px 8px;font-weight:700">33% AMI</span>
+                            <span class="badge b-green" style="font-size:10.5px;padding:2px 8px;font-weight:700">Section 8 PBV ✓</span>
+                          </div>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-weight:700;font-size:12px;padding:4px 10px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap">
+                            ● Waitlist Queue #14
+                          </span>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;font-size:13px;color:var(--mut);font-weight:600;white-space:nowrap">
+                          2 hours ago
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;text-align:right;white-space:nowrap">
+                          <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;white-space:nowrap">
+                            <button class="btn btn-primary btn-sm" onclick="openPmReviewModal('Maria Reyes', 'Cedar Grove Commons', '4 Persons · $42,000/yr (33% AMI)', 'Section 8 PBV Voucher', 'Waitlist Queue #14 of 42', 'assets/avatar-maria.jpg')" style="font-weight:700;padding:6px 14px;white-space:nowrap">Review App</button>
+                            <button class="btn btn-outline btn-sm" onclick="alert('Messaging thread opened for Maria Reyes.')" style="padding:6px 12px;white-space:nowrap">Reply</button>
+                          </div>
+                        </td>
+                      </tr>
+
+                      <!-- Row 2: Elena Rostova -->
+                      <tr class="pm-inquiry-row" data-cat="app voucher" data-prop="Willow Park Flats" style="border-bottom:1px solid var(--line,#e2e8f0);transition:background .15s">
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <div style="display:flex;align-items:center;gap:12px;white-space:nowrap">
+                            <span class="avatar-circle" style="width:40px;height:40px;overflow:hidden;padding:0;flex-shrink:0;border:2px solid #fde68a"><img src="assets/avatar-elena.jpg" alt="Elena Rostova" style="width:100%;height:100%;object-fit:cover;display:block"></span>
+                            <div style="display:flex;align-items:center;gap:10px;white-space:nowrap">
+                              <span style="font-weight:800;color:var(--ink);font-size:14.5px">Elena Rostova</span>
+                              <span class="xs mut">·</span>
+                              <span class="xs mut">elena.r@example.com</span>
+                              <span class="xs mut">·</span>
+                              <span class="xs mut">(916) 555-0341</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <div style="display:flex;align-items:center;gap:10px;white-space:nowrap">
+                            <span style="font-weight:700;font-size:14px;color:var(--ink)">Willow Park Flats</span>
+                            <span class="badge b-line" style="font-size:11px;padding:2px 8px;font-weight:600">3BR Unit #312</span>
+                            <span style="font-weight:800;color:var(--blue-700);font-size:13.5px">$1,150/mo</span>
+                          </div>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <div style="display:flex;align-items:center;gap:8px;white-space:nowrap">
+                            <span style="font-size:13.5px;font-weight:700;color:var(--ink)">3 Persons · $38,200/yr</span>
+                            <span class="badge b-blue" style="font-size:10.5px;padding:2px 8px;font-weight:700">40% AMI</span>
+                            <span class="badge b-green" style="font-size:10.5px;padding:2px 8px;font-weight:700">Housing Choice Voucher ✓</span>
+                          </div>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <span class="badge" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;font-weight:700;font-size:12px;padding:4px 10px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap">
+                            ⚠ Pay Stubs for Audit
+                          </span>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;font-size:13px;color:var(--mut);font-weight:600;white-space:nowrap">
+                          5 hours ago
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;text-align:right;white-space:nowrap">
+                          <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;white-space:nowrap">
+                            <button class="btn btn-primary btn-sm" style="background:#b45309;border-color:#b45309;font-weight:700;padding:6px 14px;white-space:nowrap" onclick="openPmReviewModal('Elena Rostova', 'Willow Park Flats', '3 Persons · $38,200/yr (40% AMI)', 'Housing Choice Voucher', 'Document Audit Pending', 'assets/avatar-elena.jpg')">Audit Pay Stubs</button>
+                            <button class="btn btn-outline btn-sm" onclick="alert('Messaging thread opened for Elena Rostova.')" style="padding:6px 12px;white-space:nowrap">Reply</button>
+                          </div>
+                        </td>
+                      </tr>
+
+                      <!-- Row 3: Marcus Vance -->
+                      <tr class="pm-inquiry-row" data-cat="waitlist" data-prop="Marigold Senior Villas" style="border-bottom:1px solid var(--line,#e2e8f0);transition:background .15s">
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <div style="display:flex;align-items:center;gap:12px;white-space:nowrap">
+                            <span class="avatar-circle" style="width:40px;height:40px;overflow:hidden;padding:0;flex-shrink:0;border:2px solid var(--green-300,#86efac)"><img src="assets/avatar-marcus.jpg" alt="Marcus Vance" style="width:100%;height:100%;object-fit:cover;display:block"></span>
+                            <div style="display:flex;align-items:center;gap:10px;white-space:nowrap">
+                              <span style="font-weight:800;color:var(--ink);font-size:14.5px">Marcus Vance</span>
+                              <span class="xs mut">·</span>
+                              <span class="xs mut">marcus.v@example.com</span>
+                              <span class="xs mut">·</span>
+                              <span class="xs mut">(916) 555-0812</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <div style="display:flex;align-items:center;gap:10px;white-space:nowrap">
+                            <span style="font-weight:700;font-size:14px;color:var(--ink)">Marigold Senior Villas</span>
+                            <span class="badge b-line" style="font-size:11px;padding:2px 8px;font-weight:600">2BR Accessible</span>
+                            <span style="font-weight:800;color:var(--blue-700);font-size:13.5px">$895/mo</span>
+                          </div>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <div style="display:flex;align-items:center;gap:8px;white-space:nowrap">
+                            <span style="font-size:13.5px;font-weight:700;color:var(--ink)">2 Persons (65+) · $24,100/yr</span>
+                            <span class="badge b-blue" style="font-size:10.5px;padding:2px 8px;font-weight:700">25% AMI</span>
+                            <span class="badge" style="background:#f3e8ff;color:#6b21a8;font-size:10.5px;padding:2px 8px;font-weight:700">Sec. 202 Senior</span>
+                          </div>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <span class="badge" style="background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;font-weight:700;font-size:12px;padding:4px 10px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap">
+                            ★ Top 5 Waitlist (#3)
+                          </span>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;font-size:13px;color:var(--mut);font-weight:600;white-space:nowrap">
+                          Yesterday
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;text-align:right;white-space:nowrap">
+                          <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;white-space:nowrap">
+                            <button class="btn btn-primary btn-sm" onclick="openPmReviewModal('Marcus Vance', 'Marigold Senior Villas', '2 Persons · $24,100/yr (25% AMI)', 'Section 202 Senior', 'Position #3 Priority Queue', 'assets/avatar-marcus.jpg')" style="font-weight:700;padding:6px 14px;white-space:nowrap">View Details</button>
+                            <button class="btn btn-outline btn-sm" onclick="alert('Interview invitation sent to Marcus Vance.')" style="padding:6px 12px;white-space:nowrap">Invite</button>
+                          </div>
+                        </td>
+                      </tr>
+
+                      <!-- Row 4: Darnell Jenkins -->
+                      <tr class="pm-inquiry-row" data-cat="app" data-prop="Riverline Flats" style="border-bottom:1px solid var(--line,#e2e8f0);transition:background .15s">
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <div style="display:flex;align-items:center;gap:12px;white-space:nowrap">
+                            <span class="avatar-circle" style="width:40px;height:40px;overflow:hidden;padding:0;flex-shrink:0;border:2px solid var(--blue-200,#bfdbfe)"><img src="assets/avatar-darnell.jpg" alt="Darnell Jenkins" style="width:100%;height:100%;object-fit:cover;display:block"></span>
+                            <div style="display:flex;align-items:center;gap:10px;white-space:nowrap">
+                              <span style="font-weight:800;color:var(--ink);font-size:14.5px">Darnell Jenkins</span>
+                              <span class="xs mut">·</span>
+                              <span class="xs mut">darnell.j@example.com</span>
+                              <span class="xs mut">·</span>
+                              <span class="xs mut">(916) 555-0677</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <div style="display:flex;align-items:center;gap:10px;white-space:nowrap">
+                            <span style="font-weight:700;font-size:14px;color:var(--ink)">Riverline Flats</span>
+                            <span class="badge b-line" style="font-size:11px;padding:2px 8px;font-weight:600">1BR Studio #104</span>
+                            <span style="font-weight:800;color:var(--blue-700);font-size:13.5px">$750/mo</span>
+                          </div>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <div style="display:flex;align-items:center;gap:8px;white-space:nowrap">
+                            <span style="font-size:13.5px;font-weight:700;color:var(--ink)">1 Person · $28,400/yr</span>
+                            <span class="badge b-blue" style="font-size:10.5px;padding:2px 8px;font-weight:700">50% AMI</span>
+                            <span class="badge b-line" style="font-size:10.5px;padding:2px 8px">Workforce 80%</span>
+                          </div>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <span class="badge" style="background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;font-weight:700;font-size:12px;padding:4px 10px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap">
+                            ● Lottery Entry #8841
+                          </span>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;font-size:13px;color:var(--mut);font-weight:600;white-space:nowrap">
+                          Aug 18, 2026
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;text-align:right;white-space:nowrap">
+                          <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;white-space:nowrap">
+                            <button class="btn btn-primary btn-sm" onclick="openPmReviewModal('Darnell Jenkins', 'Riverline Flats', '1 Person · $28,400/yr (50% AMI)', 'Workforce Housing', 'Lottery Ticket #8841', 'assets/avatar-darnell.jpg')" style="font-weight:700;padding:6px 14px;white-space:nowrap">Lottery Pass</button>
+                            <button class="btn btn-outline btn-sm" onclick="alert('Messaging thread opened for Darnell Jenkins.')" style="padding:6px 12px;white-space:nowrap">Reply</button>
+                          </div>
+                        </td>
+                      </tr>
+
+                      <!-- Row 5: Aisha & Tariq Patel -->
+                      <tr class="pm-inquiry-row" data-cat="tour voucher" data-prop="Cedar Grove Commons" style="border-bottom:1px solid var(--line,#e2e8f0);transition:background .15s">
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <div style="display:flex;align-items:center;gap:12px;white-space:nowrap">
+                            <span class="avatar-circle" style="width:40px;height:40px;overflow:hidden;padding:0;flex-shrink:0;border:2px solid var(--purple-300,#d8b4fe)"><img src="assets/avatar-maria.jpg" alt="Aisha Patel" style="width:100%;height:100%;object-fit:cover;display:block"></span>
+                            <div style="display:flex;align-items:center;gap:10px;white-space:nowrap">
+                              <span style="font-weight:800;color:var(--ink);font-size:14.5px">Aisha &amp; Tariq Patel</span>
+                              <span class="xs mut">·</span>
+                              <span class="xs mut">patel.family@example.com</span>
+                              <span class="xs mut">·</span>
+                              <span class="xs mut">(916) 555-0921</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <div style="display:flex;align-items:center;gap:10px;white-space:nowrap">
+                            <span style="font-weight:700;font-size:14px;color:var(--ink)">Cedar Grove Commons</span>
+                            <span class="badge b-line" style="font-size:11px;padding:2px 8px;font-weight:600">3BR Family Suite</span>
+                            <span style="font-weight:800;color:var(--blue-700);font-size:13.5px">$1,180/mo</span>
+                          </div>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <div style="display:flex;align-items:center;gap:8px;white-space:nowrap">
+                            <span style="font-size:13.5px;font-weight:700;color:var(--ink)">5 Persons · $49,000/yr</span>
+                            <span class="badge b-blue" style="font-size:10.5px;padding:2px 8px;font-weight:700">45% AMI</span>
+                            <span class="badge b-green" style="font-size:10.5px;padding:2px 8px;font-weight:700">Housing Voucher ✓</span>
+                          </div>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <span class="badge" style="background:#f3e8ff;color:#6b21a8;border:1px solid #d8b4fe;font-weight:700;font-size:12px;padding:4px 10px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap">
+                            🗓 Tour Confirmed · Aug 22
+                          </span>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;font-size:13px;color:var(--mut);font-weight:600;white-space:nowrap">
+                          Aug 17, 2026
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;text-align:right;white-space:nowrap">
+                          <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;white-space:nowrap">
+                            <button class="btn btn-primary btn-sm" onclick="alert('Tour appointment details: Saturday Aug 22 @ 10:30 AM with leasing agent Marcus.')" style="font-weight:700;padding:6px 14px;white-space:nowrap">View Tour</button>
+                            <button class="btn btn-outline btn-sm" onclick="alert('Messaging thread opened for Patel family.')" style="padding:6px 12px;white-space:nowrap">Message</button>
+                          </div>
+                        </td>
+                      </tr>
+
+                      <!-- Row 6: Carlos Mendez -->
+                      <tr class="pm-inquiry-row" data-cat="app voucher" data-prop="Fernwood Court" style="transition:background .15s">
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <div style="display:flex;align-items:center;gap:12px;white-space:nowrap">
+                            <span class="avatar-circle" style="width:40px;height:40px;overflow:hidden;padding:0;flex-shrink:0;border:2px solid var(--green-300,#86efac)"><img src="assets/avatar-darnell.jpg" alt="Carlos Mendez" style="width:100%;height:100%;object-fit:cover;display:block"></span>
+                            <div style="display:flex;align-items:center;gap:10px;white-space:nowrap">
+                              <span style="font-weight:800;color:var(--ink);font-size:14.5px">Carlos Mendez</span>
+                              <span class="xs mut">·</span>
+                              <span class="xs mut">carlos.m@example.com</span>
+                              <span class="xs mut">·</span>
+                              <span class="xs mut">(916) 555-0455</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <div style="display:flex;align-items:center;gap:10px;white-space:nowrap">
+                            <span style="font-weight:700;font-size:14px;color:var(--ink)">Fernwood Court</span>
+                            <span class="badge b-line" style="font-size:11px;padding:2px 8px;font-weight:600">1BR Unit #108</span>
+                            <span style="font-weight:800;color:var(--blue-700);font-size:13.5px">$820/mo</span>
+                          </div>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <div style="display:flex;align-items:center;gap:8px;white-space:nowrap">
+                            <span style="font-size:13.5px;font-weight:700;color:var(--ink)">1 Person · $31,500/yr</span>
+                            <span class="badge b-blue" style="font-size:10.5px;padding:2px 8px;font-weight:700">50% AMI</span>
+                            <span class="badge b-green" style="font-size:10.5px;padding:2px 8px;font-weight:700">Pre-Qualified HUD ✓</span>
+                          </div>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap">
+                          <span class="badge b-green" style="font-weight:700;font-size:12px;padding:4px 10px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap">
+                            ✓ Ready for Lease Signing
+                          </span>
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;font-size:13px;color:var(--mut);font-weight:600;white-space:nowrap">
+                          Aug 12, 2026
+                        </td>
+                        <td style="padding:14px 20px;vertical-align:middle;text-align:right;white-space:nowrap">
+                          <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;white-space:nowrap">
+                            <button class="btn btn-primary btn-sm" onclick="alert('Lease agreement package generated for Carlos Mendez.')" style="font-weight:700;padding:6px 14px;white-space:nowrap">Send Lease</button>
+                            <button class="btn btn-outline btn-sm" onclick="alert('Messaging thread opened for Carlos Mendez.')" style="padding:6px 12px;white-space:nowrap">Message</button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Subtle bottom scroll hint footer -->
+                <div style="padding:10px 18px;background:var(--bg,#f8fafc);border-top:1px solid var(--line,#e2e8f0);display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--mut)">
+                  <span>Showing <b>6 of 14</b> active applicant leads</span>
+                  <span style="display:flex;align-items:center;gap:4px">
+                    <svg style="width:14px;height:14px;color:var(--blue-700)"><use href="#i-arr"/></svg> Scroll horizontally to view all fields &amp; actions
+                  </span>
+                </div>
+              </div>
+            </div>
+
+<!-- PM: Listings -->
             <div class="pm-pane" data-pane="listings" hidden>
               <div class="pagehead">
                 <div>
                   <h1 style="font-size:var(--fs-h3)">Listings</h1>
                   <p class="sm mut">Drag photos onto any row to upload · changes go live after a quick review</p>
-                </div><button class="btn btn-primary"><svg>
+                </div><button class="btn btn-primary" onclick="openAddListingModal()"><svg>
                     <use href="#i-plus" />
                   </svg> Add listing</button>
               </div>
@@ -5311,8 +6568,8 @@
                 <div>
                   <h1 style="font-size:var(--fs-h3)">Documents</h1>
                   <p class="sm mut">Shared with renters on your listings</p>
-                </div><button class="btn btn-primary"><svg>
-                    <use href="#i-plus" />
+                </div><button class="btn btn-primary" onclick="openUploadDocModal()"><svg>
+                    <use href="#i-up" />
                   </svg> Upload document</button>
               </div>
               <div class="card">
@@ -5609,27 +6866,26 @@
     </button>
     <div class="user-menu-wrapper" style="position:relative">
       <button class="user-profile-btn" aria-label="Account menu" onclick="toggleUserDropdown(event)">
-        <span class="avatar-circle">MR</span>
+        <span class="avatar-circle" style="overflow:hidden;padding:0"><img src="assets/avatar-maria.jpg" alt="Maria" style="width:100%;height:100%;object-fit:cover;display:block"></span>
         <span class="user-name">Maria</span>
         <svg class="chevron-ic" style="width:14px;height:14px"><use href="#i-chev"/></svg>
       </button>
       <div class="user-dropdown-menu" id="userDropdown" style="display:none;position:absolute;top:calc(100% + 10px);right:0;width:260px;background:var(--card,#fff);border:1px solid var(--line-2,#cbd5e1);border-radius:14px;box-shadow:0 12px 36px rgba(0,0,0,0.16);z-index:2000;overflow:hidden">
-        <div style="padding:14px 16px;background:var(--bg,#f8fafc);border-bottom:1px solid var(--line,#e2e8f0)">
+        <a href="#/dashboard" onclick="closeUserDropdown();go('dashboard')" style="display:block;padding:14px 16px;background:var(--bg,#f8fafc);border-bottom:1px solid var(--line,#e2e8f0);text-decoration:none;cursor:pointer;transition:background var(--t-fast)" onmouseover="this.style.background='var(--blue-50,#eff6ff)'" onmouseout="this.style.background='var(--bg,#f8fafc)'">
           <div style="display:flex;gap:10px;align-items:center">
-            <span class="avatar-circle" style="width:36px;height:36px;font-size:12px">MR</span>
+            <span class="avatar-circle" style="width:38px;height:38px;overflow:hidden;padding:0"><img src="assets/avatar-maria.jpg" alt="Maria Reyes" style="width:100%;height:100%;object-fit:cover;display:block"></span>
             <div style="min-width:0;flex:1">
               <div style="font-weight:700;font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Maria Reyes</div>
               <div style="font-size:12px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">maria@example.com</div>
             </div>
           </div>
-          <span class="badge b-green" style="display:inline-flex;margin-top:8px;font-size:10.5px;padding:2px 7px">Pre-screened · 4 persons</span>
-        </div>
+        </a>
         <div style="padding:6px" class="user-dropdown-links">
           <a href="#/dashboard" onclick="closeUserDropdown();go('dashboard')" style="display:flex;align-items:center;gap:10px;padding:9px 12px;font-size:13px;font-weight:600;color:var(--ink-2);border-radius:8px;text-decoration:none">
-            <svg style="width:16px;height:16px;color:var(--blue-700)"><use href="#i-chart"/></svg> Overview
+            <svg style="width:16px;height:16px;color:var(--blue-700)"><use href="#i-grid"/></svg> My Dashboard
           </a>
-          <a href="#/favorites" onclick="closeUserDropdown();go('favorites')" style="display:flex;align-items:center;gap:10px;padding:9px 12px;font-size:13px;font-weight:600;color:var(--ink-2);border-radius:8px;text-decoration:none">
-            <svg style="width:16px;height:16px;color:var(--blue-700)"><use href="#i-heart"/></svg> Saved homes <span class="cnt" style="margin-left:auto;background:var(--green-100);color:var(--green-800);font-size:11px;padding:1px 6px;border-radius:10px">6</span>
+          <a href="#/applications" onclick="closeUserDropdown();go('applications')" style="display:flex;align-items:center;gap:10px;padding:9px 12px;font-size:13px;font-weight:600;color:var(--ink-2);border-radius:8px;text-decoration:none">
+            <svg style="width:16px;height:16px;color:var(--blue-700)"><use href="#i-doc"/></svg> Applications &amp; Waitlists
           </a>
           <a href="#/profile" onclick="closeUserDropdown();showProfilePane('profile');go('profile')" style="display:flex;align-items:center;gap:10px;padding:9px 12px;font-size:13px;font-weight:600;color:var(--ink-2);border-radius:8px;text-decoration:none">
             <svg style="width:16px;height:16px;color:var(--blue-700)"><use href="#i-user"/></svg> Profile &amp; Household
@@ -5658,13 +6914,14 @@
      <div style="display:flex;gap:8px;margin-top:16px"><span class="badge" style="background:rgba(255,255,255,.12);color:#fff">WCAG 2.2 AA</span><span class="badge" style="background:rgba(255,255,255,.12);color:#fff">8 languages</span><span class="badge" style="background:rgba(255,255,255,.12);color:#fff">Equal Housing</span></div></div>
    <div><h5>Search</h5><ul><li><a href="#/search" onclick="go('search')">All listings</a></li><li><a href="#/directory" onclick="go('directory')">By state & city</a></li><li><a href="#/directory" onclick="go('directory')">By program</a></li><li><a href="#/calculator" onclick="go('calculator')">Eligibility calculator</a></li></ul></div>
    <div><h5>Learn</h5><ul><li><a href="#/programs" onclick="go('programs')">Housing programs</a></li><li><a href="#/resources" onclick="go('resources')">Guides & videos</a></li><li><a href="#/faq" onclick="go('faq')">FAQ</a></li><li><a href="#/help" onclick="go('help')">Help Center</a></li></ul></div>
-   <div><h5>Company &amp; Legal</h5><ul><li><a href="#/about" onclick="go('about')">About & mission</a></li><li><a href="#/contact" onclick="go('contact')">Contact</a></li><li><a href="#/pm" onclick="go('pm')">For property managers</a></li><li><a href="#/privacy" onclick="go('privacy')">Privacy Policy</a></li><li><a href="#/terms" onclick="go('terms')">Terms of Service</a></li></ul></div>
+   <div><h5>Company &amp; Legal</h5><ul><li><a href="#/about" onclick="go('about')">About & mission</a></li><li><a href="#/contact" onclick="go('contact')">Contact</a></li><li><a href="#/privacy" onclick="go('privacy')">Privacy Policy</a></li><li><a href="#/terms" onclick="go('terms')">Terms of Service</a></li></ul></div>
   </div>
   <div class="base"><span>© 2026 Apartment Bridge. Data sourced from HUD &amp; housing partners. <a href="#/privacy" onclick="go('privacy')" style="color:inherit;text-decoration:underline;margin-left:8px">Privacy Policy</a> · <a href="#/terms" onclick="go('terms')" style="color:inherit;text-decoration:underline">Terms of Service</a></span><span>English · Español · 中文 · Tiếng Việt +4</span></div>
  </div></footer>`;
     });
     const SIDE = [
       ["dashboard", "Overview", "i-chart", ""],
+      ["applications", "Applications & Waitlists", "i-doc", "4"],
       ["favorites", "Saved homes", "i-heart", "6"],
       ["saved-searches", "Saved searches", "i-bell", "3"],
       ["notifications", "Notifications", "i-inbox", "2"],
@@ -5688,7 +6945,7 @@
 
         const bottomLogout = `<div style="margin-top:auto;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:4px">
           <div style="display:flex;align-items:center;gap:10px;padding:6px 10px;margin-bottom:2px">
-            <span class="avatar" style="width:30px;height:30px;background:linear-gradient(135deg,var(--blue-700),var(--blue-800));color:#fff;font-weight:700;font-size:11px;display:grid;place-items:center;border-radius:50%">MR</span>
+            <span class="avatar" style="width:32px;height:32px;border-radius:50%;overflow:hidden;display:grid;place-items:center;flex-shrink:0"><img src="assets/avatar-maria.jpg" alt="Maria Reyes" style="width:100%;height:100%;object-fit:cover;display:block"></span>
             <div style="min-width:0;flex:1">
               <div style="font-weight:700;font-size:13px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Maria Reyes</div>
               <div style="font-size:11px;color:var(--mut)">Logged in</div>
@@ -5867,8 +7124,12 @@
       /* favorites */
       const fav = e.target.closest(".fav,.fav-any");
       if (fav) {
-        const on = fav.classList.toggle("on"); fav.setAttribute("aria-pressed", on);
-        fav.style.transform = "scale(1.2)"; setTimeout(() => fav.style.transform = "", 150); return
+        const on = fav.classList.toggle("on");
+        fav.setAttribute("aria-pressed", on);
+        fav.style.transform = "scale(1.2)";
+        setTimeout(() => fav.style.transform = "", 150);
+        showAppToast(on ? "Saved to your favorites ❤️" : "Removed from favorites", on ? "❤️" : "🤍");
+        return;
       }
       /* chips: toggle selection unless the chip navigates somewhere */
       const chipBtn = e.target.closest("button.chip");
@@ -5968,7 +7229,1335 @@
 
     /* open-by-default accordions sizing */
     document.querySelectorAll(".acc.open .pane").forEach(p => p.style.maxHeight = p.scrollHeight + "px");
-  </script>
+
+    /* ============ Lightbox Photo Gallery Controller ============ */
+    const PROPERTY_GALLERY_PHOTOS = [
+      {
+        src: 'assets/prop-1.jpg',
+        title: 'Courtyard & Main Residential Building',
+        desc: 'Cedar Grove Commons · Modern 4-story energy-efficient residential complex featuring landscaped walking paths, outdoor seating, and picnic spaces.'
+      },
+      {
+        src: 'assets/prop-2.jpg',
+        title: 'Modern Living Room & Kitchen',
+        desc: 'Spacious open-concept layout with energy-star stainless appliances, quartz countertops, designer cabinetry, and durable wood-plank flooring.'
+      },
+      {
+        src: 'assets/prop-4.jpg',
+        title: 'Master Bedroom Suite & Balcony Access',
+        desc: 'Primary bedroom featuring large double-glazed noise-dampening windows, plush carpeting, generous walk-in closet, and private patio access.'
+      },
+      {
+        src: 'assets/prop-5.jpg',
+        title: 'Resident Clubhouse & Community Lounge',
+        desc: 'Multi-purpose community room with high-speed resident Wi-Fi, computer workstations, resident coffee bar, and lounge seating.'
+      },
+      {
+        src: 'assets/cat-family.jpg',
+        title: 'Courtyard Gardens & Children Playground',
+        desc: 'Enclosed family recreation area with modern children play structure, shaded picnic pergolas, community gardens, and BBQ grills.'
+      },
+      {
+        src: 'assets/prop-3.jpg',
+        title: 'Waterfront Promenade & Greenbelt Trail',
+        desc: 'Direct access to scenic lakeside walking trails, peaceful outdoor nature vistas, and bike paths connecting to Sacramento transit.'
+      },
+      {
+        src: 'assets/prop-6.jpg',
+        title: 'Sustainable Architecture & Solar Canopy',
+        desc: 'Green-building certified construction with rooftop solar array, EV charging stations, and high-efficiency thermal building envelope.'
+      },
+      {
+        src: 'assets/prop-7.jpg',
+        title: 'Private Upper-Floor Balconies',
+        desc: 'Upper-floor residential units feature expansive private outdoor balconies with panoramic neighborhood and courtyard views.'
+      },
+      {
+        src: 'assets/prop-8.jpg',
+        title: 'Accessible Ground-Floor Entry & Parking',
+        desc: 'Zero-step entrance thresholds, dedicated ADA-compliant parking spaces, and electronic security intercom access for residents.'
+      },
+      {
+        src: 'assets/cat-accessible.jpg',
+        title: 'Universal Design & Accessible Bathroom',
+        desc: 'Accessible bathroom suite with zero-threshold roll-in shower, reinforced grab bars, lowered vanity, and ADA-compliant lever fixtures.'
+      }
+    ];
+
+    let currentGalleryIndex = 0;
+
+    function openGalleryModal(index = 0) {
+      currentGalleryIndex = (index + PROPERTY_GALLERY_PHOTOS.length) % PROPERTY_GALLERY_PHOTOS.length;
+      const modal = document.getElementById('galleryModal');
+      if (!modal) return;
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      renderGalleryThumbs();
+      renderGalleryModal();
+    }
+
+    function closeGalleryModal() {
+      const modal = document.getElementById('galleryModal');
+      if (!modal) return;
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function handleGalleryOverlayClick(e) {
+      if (e.target.id === 'galleryModal' || e.target.classList.contains('gallery-modal-body') || e.target.classList.contains('gallery-modal-main-img-wrap')) {
+        closeGalleryModal();
+      }
+    }
+
+    function nextGalleryPhoto(e) {
+      if (e) e.stopPropagation();
+      currentGalleryIndex = (currentGalleryIndex + 1) % PROPERTY_GALLERY_PHOTOS.length;
+      renderGalleryModal();
+    }
+
+    function prevGalleryPhoto(e) {
+      if (e) e.stopPropagation();
+      currentGalleryIndex = (currentGalleryIndex - 1 + PROPERTY_GALLERY_PHOTOS.length) % PROPERTY_GALLERY_PHOTOS.length;
+      renderGalleryModal();
+    }
+
+    function goToGalleryPhoto(idx, e) {
+      if (e) e.stopPropagation();
+      currentGalleryIndex = idx;
+      renderGalleryModal();
+    }
+
+    function renderGalleryModal() {
+      const photo = PROPERTY_GALLERY_PHOTOS[currentGalleryIndex];
+      const imgEl = document.getElementById('galleryModalImg');
+      const titleEl = document.getElementById('galleryModalTitle');
+      const countEl = document.getElementById('galleryModalCount');
+      const descEl = document.getElementById('galleryModalDesc');
+
+      if (imgEl) {
+        imgEl.style.opacity = '0';
+        imgEl.style.transform = 'scale(0.97)';
+        setTimeout(() => {
+          imgEl.src = photo.src;
+          imgEl.alt = photo.title;
+          imgEl.style.opacity = '1';
+          imgEl.style.transform = 'scale(1)';
+        }, 110);
+      }
+      if (titleEl) titleEl.textContent = photo.title;
+      if (countEl) countEl.textContent = `Photo ${currentGalleryIndex + 1} of ${PROPERTY_GALLERY_PHOTOS.length}`;
+      if (descEl) descEl.textContent = photo.desc;
+
+      // Update active thumbnail
+      document.querySelectorAll('.gallery-thumb-item').forEach((th, idx) => {
+        if (idx === currentGalleryIndex) {
+          th.classList.add('active');
+          th.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        } else {
+          th.classList.remove('active');
+        }
+      });
+    }
+
+    function renderGalleryThumbs() {
+      const track = document.getElementById('galleryThumbTrack');
+      if (!track) return;
+      track.innerHTML = PROPERTY_GALLERY_PHOTOS.map((p, idx) => `
+        <div class="gallery-thumb-item ${idx === currentGalleryIndex ? 'active' : ''}" onclick="goToGalleryPhoto(${idx}, event)" title="${p.title}">
+          <img src="${p.src}" alt="${p.title}" loading="lazy">
+        </div>
+      `).join('');
+    }
+
+    // Global keyboard listener for modals & gallery lightbox
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeGalleryModal();
+        closeApplyModal();
+        closeResourceModal();
+        closeAddListingModal();
+        closeUploadDocModal();
+      }
+      const galleryModal = document.getElementById('galleryModal');
+      if (galleryModal && galleryModal.classList.contains('active')) {
+        if (e.key === 'ArrowRight') nextGalleryPhoto();
+        if (e.key === 'ArrowLeft') prevGalleryPhoto();
+      }
+    });
+
+    /* ============ Property Manager: Add Listing & Upload Doc Modals ============ */
+    function openAddListingModal() {
+      const modal = document.getElementById('addListingModal');
+      if (modal) modal.classList.add('active');
+    }
+    function closeAddListingModal() {
+      const modal = document.getElementById('addListingModal');
+      if (modal) modal.classList.remove('active');
+    }
+    function handleAddListingOverlayClick(e) {
+      if (e.target.id === 'addListingModal') closeAddListingModal();
+    }
+    function handleAddListingSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('newPropName')?.value || 'New Property';
+      const prog = document.getElementById('newPropProg')?.value || 'LIHTC 60%';
+      const city = document.getElementById('newPropCity')?.value || 'Sacramento, CA';
+      const units = document.getElementById('newPropUnits')?.value || '100';
+      const status = document.getElementById('newPropStatus')?.value || 'Waitlist open';
+
+      const tbody = document.querySelector('#s-pm table.tbl tbody');
+      if (tbody) {
+        const badgeColor = status.includes('open') ? 'b-ink" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a"' : (status.includes('available') ? 'b-green"' : 'b-muted"');
+        const progBadge = prog.includes('LIHTC') ? 'b-green' : (prog.includes('Section 8') ? 'b-blue' : 'b-purple');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+          <td>
+            <div style="display:flex;align-items:center;gap:12px">
+              <img src="assets/prop-1.jpg" alt="${name}" style="width:48px;height:38px;border-radius:6px;object-fit:cover;border:1px solid var(--line)">
+              <div>
+                <div style="font-weight:700;color:var(--ink)">${name}</div>
+                <div class="xs mut">${units} units · ${city}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge ${progBadge}">${prog}</span></td>
+          <td><span class="badge ${badgeColor}">${status}</span></td>
+          <td><b>0</b></td>
+          <td><b>0</b></td>
+          <td><button class="btn btn-outline btn-sm" onclick="go('property')">Edit</button></td>
+        `;
+        tbody.prepend(newRow);
+      }
+
+      closeAddListingModal();
+      showAppToast(`Listing "${name}" published successfully!`, '🏢');
+    }
+
+    function openUploadDocModal() {
+      const modal = document.getElementById('uploadDocModal');
+      if (modal) modal.classList.add('active');
+    }
+    function closeUploadDocModal() {
+      const modal = document.getElementById('uploadDocModal');
+      if (modal) modal.classList.remove('active');
+    }
+    function handleUploadDocOverlayClick(e) {
+      if (e.target.id === 'uploadDocModal') closeUploadDocModal();
+    }
+    function handleDocFileSelect(input) {
+      if (input.files && input.files[0]) {
+        const dropText = document.getElementById('dropzoneText');
+        if (dropText) dropText.textContent = 'Selected: ' + input.files[0].name;
+      }
+    }
+    function handleUploadDocSubmit(e) {
+      e.preventDefault();
+      const title = document.getElementById('newDocTitle')?.value || 'Compliance Document.pdf';
+      const cat = document.getElementById('newDocCategory')?.value || 'LIHTC Standard';
+      const desc = document.getElementById('newDocDesc')?.value || 'Regulatory compliance form template';
+
+      const grid = document.querySelector('#s-pm [data-pane="docs"] .card');
+      if (grid) {
+        const row = document.createElement('div');
+        row.className = 'notif';
+        row.innerHTML = `
+          <span class="ic t-blue"><svg><use href="#i-doc"/></svg></span>
+          <span style="flex:1" class="sm"><b>${title}</b><br><span class="xs mut">${cat} · Attached to listings · Just now</span></span>
+          <button class="btn btn-ghost btn-sm">Replace</button>
+        `;
+        grid.prepend(row);
+      }
+      closeUploadDocModal();
+      showAppToast(`Document "${title}" uploaded to repository!`, '📄');
+    }
+
+    /* ============ Toast Notifications ============ */
+    let toastTimeout = null;
+    function showAppToast(msg, icon = '❤️') {
+      const toast = document.getElementById('appToast');
+      const iconEl = document.getElementById('toastIcon');
+      const msgEl = document.getElementById('toastMsg');
+      if (!toast || !msgEl) return;
+      if (iconEl) iconEl.textContent = icon;
+      msgEl.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2600);
+    }
+
+    /* ============ Waitlist Application Modal Controller ============ */
+    function openApplyModal() {
+      const modal = document.getElementById('applyModal');
+      if (!modal) return;
+      // Reset form view
+      const content = document.getElementById('applyModalContent');
+      if (content) {
+        content.innerHTML = `
+          <form id="applyWaitlistForm" onsubmit="handleApplySubmit(event)" style="display:grid;gap:18px">
+            <div class="alert info" style="font-size:12.5px;padding:10px 14px">
+              <svg style="width:16px;height:16px;flex:none"><use href="#i-info"/></svg>
+              <span><b>HUD Affordable Housing Pre-Application:</b> There is NEVER a fee to apply or join a waitlist. Information is secure, confidential, and compliant with US Fair Housing regulations.</span>
+            </div>
+
+            <!-- 1. Head of Household -->
+            <div>
+              <h4 style="margin:0 0 10px;font-size:13.5px;color:var(--blue-800);display:flex;align-items:center;gap:6px">
+                <span class="badge b-blue" style="font-size:11px;padding:2px 7px">1</span> Head of Household
+              </h4>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="field">
+                  <label style="font-size:12px;font-weight:600">First Name *</label>
+                  <input type="text" class="input" required value="Maria" placeholder="First Name">
+                </div>
+                <div class="field">
+                  <label style="font-size:12px;font-weight:600">Last Name *</label>
+                  <input type="text" class="input" required value="Santos" placeholder="Last Name">
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+                <div class="field">
+                  <label style="font-size:12px;font-weight:600">Phone Number *</label>
+                  <input type="tel" class="input" required value="(916) 555-0192" placeholder="(555) 000-0000">
+                </div>
+                <div class="field">
+                  <label style="font-size:12px;font-weight:600">Email Address *</label>
+                  <input type="email" class="input" required value="maria.santos@email.com" placeholder="name@email.com">
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-top:10px">
+                <div class="field">
+                  <label style="font-size:12px;font-weight:600">Street Address *</label>
+                  <input type="text" class="input" required value="4428 Florin Rd, Apt 4" placeholder="Street Address">
+                </div>
+                <div class="field">
+                  <label style="font-size:12px;font-weight:600">State *</label>
+                  <select class="select">
+                    <option selected>CA</option>
+                    <option>AZ</option>
+                    <option>CO</option>
+                    <option>NV</option>
+                    <option>OR</option>
+                    <option>TX</option>
+                    <option>WA</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label style="font-size:12px;font-weight:600">ZIP Code *</label>
+                  <input type="text" class="input" required value="95823" maxlength="5">
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+                <div class="field">
+                  <label style="font-size:12px;font-weight:600">Date of Birth *</label>
+                  <input type="date" class="input" required value="1991-05-14">
+                </div>
+                <div class="field">
+                  <label style="font-size:12px;font-weight:600">Last 4 Digits of SSN / ITIN *</label>
+                  <input type="text" class="input" required value="4829" maxlength="4" placeholder="••••">
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Unit Preference & Household -->
+            <div style="border-top:1px solid var(--line);padding-top:14px">
+              <h4 style="margin:0 0 10px;font-size:13.5px;color:var(--blue-800);display:flex;align-items:center;gap:6px">
+                <span class="badge b-blue" style="font-size:11px;padding:2px 7px">2</span> Unit & Household Requirements
+              </h4>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="field">
+                  <label style="font-size:12px;font-weight:600">Preferred Bedroom Size</label>
+                  <select class="select" id="applyBedChoice">
+                    <option>1 Bedroom · 1 Bath ($748/mo)</option>
+                    <option selected>2 Bedrooms · 1 Bath ($905/mo)</option>
+                    <option>3 Bedrooms · 2 Baths ($1,240/mo)</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label style="font-size:12px;font-weight:600">Household Size</label>
+                  <select class="select">
+                    <option>1 Person</option>
+                    <option>2 People</option>
+                    <option>3 People</option>
+                    <option selected>4 People (2 Adults, 2 Children)</option>
+                    <option>5+ People</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin-top:10px" class="field">
+                <label style="font-size:12px;font-weight:600">Accessibility Accommodation</label>
+                <select class="select">
+                  <option selected>Standard Floorplan (No modifications needed)</option>
+                  <option>Mobility Accessible (Roll-in shower, grab bars, wheelchair clearance)</option>
+                  <option>Hearing / Vision Impaired Features (Strobe alarm, tactile bells)</option>
+                  <option>Ground Floor Unit Priority</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 3. Income & Assistance -->
+            <div style="border-top:1px solid var(--line);padding-top:14px">
+              <h4 style="margin:0 0 10px;font-size:13.5px;color:var(--blue-800);display:flex;align-items:center;gap:6px">
+                <span class="badge b-blue" style="font-size:11px;padding:2px 7px">3</span> Income & Voucher Information
+              </h4>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="field">
+                  <label style="font-size:12px;font-weight:600">Total Annual Gross Income *</label>
+                  <div style="position:relative">
+                    <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--mut)">$</span>
+                    <input type="text" class="input" style="padding-left:26px" required value="42,000">
+                  </div>
+                </div>
+                <div class="field">
+                  <label style="font-size:12px;font-weight:600">Primary Income Source</label>
+                  <select class="select">
+                    <option selected>Employment / Wages (W-2)</option>
+                    <option>Social Security / SSI / SSDI</option>
+                    <option>Self-Employment / 1099</option>
+                    <option>Pension / Retirement</option>
+                    <option>Other / Family Contribution</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+                <div class="field">
+                  <label style="font-size:12px;font-weight:600">Housing Voucher / Rental Subsidy</label>
+                  <select class="select">
+                    <option selected>Yes · Section 8 Housing Choice Voucher (HCV)</option>
+                    <option>Yes · HUD-VASH (Veteran Voucher)</option>
+                    <option>Yes · Emergency Housing Voucher (EHV)</option>
+                    <option>No · Unsubsidized (Standard LIHTC)</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label style="font-size:12px;font-weight:600">Issuing Housing Authority</label>
+                  <input type="text" class="input" value="Sacramento Housing & Redevelopment Agency (SHRA)">
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. Certification -->
+            <div style="border-top:1px solid var(--line);padding-top:14px;display:grid;gap:8px">
+              <label class="check" style="font-size:12px">
+                <input type="checkbox" checked required>
+                <span>I certify under penalty of perjury under the laws of the State of California that the statements made in this pre-application are true and correct.</span>
+              </label>
+              <label class="check" style="font-size:12px">
+                <input type="checkbox" checked>
+                <span>I consent to receive SMS and email status notifications from BRIDGE Housing regarding waitlist updates.</span>
+              </label>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px">
+              <button type="button" class="btn btn-outline" onclick="closeApplyModal()">Cancel</button>
+              <button type="submit" id="btnApplySubmit" class="btn btn-primary btn-lg" style="box-shadow:0 4px 14px rgba(29,111,184,0.35)">
+                Submit Pre-Application →
+              </button>
+            </div>
+          </form>`;
+      }
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeApplyModal() {
+      const modal = document.getElementById('applyModal');
+      if (!modal) return;
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function handleApplyOverlayClick(e) {
+      if (e.target.id === 'applyModal') {
+        closeApplyModal();
+      }
+    }
+
+    function handleApplySubmit(e) {
+      e.preventDefault();
+      const content = document.getElementById('applyModalContent');
+      if (!content) return;
+      const refNum = 'AB-' + Math.floor(100000 + Math.random() * 900000);
+      content.innerHTML = `
+        <div style="text-align:center;padding:24px 10px">
+          <div style="width:64px;height:64px;border-radius:50%;background:#dcfce7;color:#16a34a;display:grid;place-items:center;margin:0 auto 16px;box-shadow:0 6px 16px rgba(22,163,74,0.25)">
+            <svg style="width:34px;height:34px"><use href="#i-check"/></svg>
+          </div>
+          <span class="badge b-green" style="font-size:12px;padding:4px 12px">Pre-Application Submitted Successfully</span>
+          <h2 style="font-size:22px;font-weight:800;margin:12px 0 6px;color:var(--ink)">You're on the Waitlist!</h2>
+          <p class="mut sm" style="max-width:440px;margin:0 auto 20px">
+            Your pre-application for <b>Cedar Grove Commons (2 Bedroom Tier)</b> has been transmitted to BRIDGE Housing Leasing Office.
+          </p>
+
+          <div class="card pad" style="max-width:460px;margin:0 auto;text-align:left;background:var(--bg-1);border-color:var(--line-2);display:grid;gap:10px;font-size:13px">
+            <div style="display:flex;justify-content:space-between">
+              <span class="mut">Confirmation Number:</span>
+              <b style="font-family:var(--disp);color:var(--blue-800)">${refNum}</b>
+            </div>
+            <div style="display:flex;justify-content:space-between">
+              <span class="mut">Property:</span>
+              <b>Cedar Grove Commons · Sacramento, CA</b>
+            </div>
+            <div style="display:flex;justify-content:space-between">
+              <span class="mut">Applicant:</span>
+              <b>Maria Santos (4 Household Members)</b>
+            </div>
+            <div style="display:flex;justify-content:space-between">
+              <span class="mut">Estimated Waitlist Review:</span>
+              <span class="badge b-blue">1–2 business days</span>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:center;gap:12px;margin-top:24px;flex-wrap:wrap">
+            <button class="btn btn-outline" onclick="showAppToast('Downloaded Confirmation Receipt (PDF)', '📄')">
+              <svg style="width:16px;height:16px"><use href="#i-down"/></svg> Download Receipt (PDF)
+            </button>
+            <button class="btn btn-primary" onclick="closeApplyModal(); showAppToast('Application saved to your dashboard! 🎉', '✅')">
+              Done · Return to Home
+            </button>
+          </div>
+        </div>`;
+      showAppToast('Waitlist application submitted! 🎉', '✅');
+    }
+
+    /* ============ Housing Resources Modal Controller ============ */
+    const RESOURCES_DATA = [
+      {
+        id: 0,
+        title: 'The Complete Section 8 Application Walkthrough',
+        category: 'Guide',
+        duration: '12 min read',
+        badgeClass: 'b-ink',
+        image: 'assets/res-sec8.jpg',
+        author: 'Elena Rodriguez, HUD Certified Housing Counselor',
+        updated: 'Updated July 2026',
+        overview: 'The Housing Choice Voucher (Section 8) program is the largest federal rental assistance program in the United States, helping over 2.3 million low-income families, elderly individuals, and people with disabilities afford safe, decent housing in the private market.',
+        sections: [
+          {
+            heading: 'Step 1: Locate Your Local Public Housing Agency (PHA)',
+            content: 'Vouchers are administered locally by approximately 3,300 PHAs across the US. Because waitlists open and close based on funding, you can apply to multiple housing authorities simultaneously across your metro or state.'
+          },
+          {
+            heading: 'Step 2: Check Income Eligibility Tiers',
+            content: 'By law, PHAs must provide 75% of vouchers to households whose income does not exceed 30% of the Area Median Income (AMI) for their county. The remaining 25% can go to families making up to 50% of AMI.'
+          },
+          {
+            heading: 'Step 3: Document Readiness & Checklist',
+            content: 'When your name reaches the top of the waitlist, you have a strict 14-day window to provide proof of income (last 4 consecutive paystubs, W-2s, or SSA benefit verification letters), government-issued photo IDs for all adults, and birth certificates/SSN cards for all minors.'
+          },
+          {
+            heading: 'Step 4: The Voucher Briefing & Property Search',
+            content: 'Once issued, you typically receive 60 to 120 days to find an apartment that passes HUD Housing Quality Standards (HQS) inspection and where rent is within the local Payment Standard. Apartment Bridge properties are 100% voucher-friendly.'
+          }
+        ],
+        downloads: ['Section_8_Document_Checklist_2026.pdf (180 KB)', 'HUD_Form_52646_Voucher_Guide.pdf (320 KB)']
+      },
+      {
+        id: 1,
+        title: 'What to Expect at an Income Certification Interview',
+        category: 'Video Walkthrough',
+        duration: '6 min watch',
+        badgeClass: 'b-red',
+        image: 'assets/res-interview.jpg',
+        author: 'Marcus Vance, Senior Compliance Officer · BRIDGE Housing',
+        updated: 'Updated June 2026',
+        overview: 'LIHTC (Low-Income Housing Tax Credit) and subsidized housing regulations require property managers to verify every dollar of household income and asset interest before lease signing. Here is exactly what happens during the interview.',
+        sections: [
+          {
+            heading: '1. What Counts as Income vs. Assets',
+            content: 'Income includes gross wages, overtime, tips, alimony, pensions, regular cash contributions from family members, and child support. If total household assets exceed $5,000, the greater of actual asset earnings or the HUD passbook rate (0.40%) is counted.'
+          },
+          {
+            heading: '2. The Third-Party Verification Process',
+            content: 'Managers cannot take your word alone; by federal rule, they must send verification forms directly to your employer, bank, and benefit agencies. Having your HR contact email ready expedites approval by up to 2 weeks.'
+          },
+          {
+            heading: '3. Student Rule Exceptions for LIHTC',
+            content: 'Under IRS Section 42, units occupied entirely by full-time students generally do not qualify, unless you meet specific exemptions (e.g. single parent with dependent children, married filing joint return, enrolled in a job training program under WIOA, or formerly in foster care).'
+          }
+        ],
+        downloads: ['Income_Verification_Worksheet.pdf (210 KB)']
+      },
+      {
+        id: 2,
+        title: 'Waitlist Strategy: Apply Wide, Stay Organized',
+        category: 'Strategy Article',
+        duration: '5 min read',
+        badgeClass: 'b-ink',
+        image: 'assets/res-waitlist.jpg',
+        author: 'Apartment Bridge Policy Research Team',
+        updated: 'Updated August 2026',
+        overview: 'Because demand for affordable housing exceeds supply in most major US metropolitan areas, the average successful applicant applies to 5–8 waitlists simultaneously. Here is the framework used by top housing navigators.',
+        sections: [
+          {
+            heading: '1. Track Openings Across Neighboring Jurisdictions',
+            content: 'Do not limit your search to a single city center. County-level housing authorities and suburban non-profit developments frequently have significantly shorter waiting queues.'
+          },
+          {
+            heading: '2. Mandatory Contact Information Maintenance',
+            content: 'PHAs purge waitlists annually by sending confirmation postcards or emails. If you move or change your phone number without notifying the property manager or PHA portal in writing within 10 days, your application will be removed.'
+          },
+          {
+            heading: '3. Leverage Preferences (Local, Veteran, Disability)',
+            content: 'Check if you qualify for statutory preference points: working families, homeless prevention, displaced by natural disaster, or local county residency. Preferences can move your position up by months.'
+          }
+        ],
+        downloads: ['Affordable_Housing_Waitlist_Tracker_Template.xlsx (95 KB)']
+      },
+      {
+        id: 3,
+        title: 'Essential Document Checklist (5 Languages)',
+        category: 'Printable Resource',
+        duration: '1 page checklist',
+        badgeClass: 'b-green',
+        image: 'assets/res-checklist.jpg',
+        author: 'US Department of Housing and Urban Development (HUD) Guidelines',
+        updated: 'Updated 2026',
+        overview: 'Having your verification packet organized in a single binder or digital folder prevents missed deadlines when a unit opens up.',
+        sections: [
+          {
+            heading: 'Identification & Household Composition',
+            content: '• Government photo IDs for all adults (Driver’s License or State ID)\n• Social Security Cards or ITIN assignment letters\n• Birth certificates for all children under 18\n• Custody documentation or court decrees (if applicable)'
+          },
+          {
+            heading: 'Income Verification (Last 90 Days)',
+            content: '• 4–6 most recent consecutive pay stubs\n• Federal Tax Return (Form 1040) with W-2s/1099s from previous tax year\n• SSA / SSI award letter dated within the last 120 days\n• Child support enforcement payment printout or notarized affidavit'
+          },
+          {
+            heading: 'Asset & Bank Documentation',
+            content: '• 6 months of complete checking account statements\n• Most recent savings account statement\n• Prepaid card account balance statements (e.g. Direct Express, Netspend)\n• 401(k), IRA, or retirement account statements'
+          }
+        ],
+        downloads: ['Complete_Document_Checklist_English.pdf (140 KB)', 'Lista_de_Documentos_Espanol.pdf (145 KB)']
+      },
+      {
+        id: 4,
+        title: 'Renting with a Disability: Your Fair Housing Rights',
+        category: 'Legal Guide',
+        duration: '9 min read',
+        badgeClass: 'b-ink',
+        image: 'assets/res-disability.jpg',
+        author: 'Disability Rights California & Fair Housing Advocates',
+        updated: 'Updated May 2026',
+        overview: 'The Fair Housing Act, Section 504 of the Rehabilitation Act, and the Americans with Disabilities Act (ADA) protect individuals with physical, mental, or sensory disabilities from discrimination and guarantee reasonable accommodations.',
+        sections: [
+          {
+            heading: '1. Reasonable Accommodations vs. Modifications',
+            content: 'A Reasonable Accommodation is a change in rules, policies, or practices (e.g. waiver of pet deposit/fees for assistance animals, designated reserved parking stall, or allowing a live-in aide). A Reasonable Modification is a physical structural change (e.g. grab bar installation, doorway widening, or ramp construction).'
+          },
+          {
+            heading: '2. Assistance & Service Animals Rules',
+            content: 'Landlords cannot charge pet rent, pet security deposits, or enforce breed/weight restrictions for verified emotional support animals (ESAs) or service animals.'
+          },
+          {
+            heading: '3. Priority for Accessible Units',
+            content: 'Federally assisted properties with mobility-accessible units (e.g. roll-in showers, lowered counters) must offer accessible units to applicants requiring those features before offering them to non-disabled applicants.'
+          }
+        ],
+        downloads: ['Reasonable_Accommodation_Request_Letter_Template.docx (45 KB)']
+      },
+      {
+        id: 5,
+        title: 'Spotting Rental Scams Before They Cost You',
+        category: 'Video Guide',
+        duration: '4 min watch',
+        badgeClass: 'b-red',
+        image: 'assets/res-scam.jpg',
+        author: 'Federal Trade Commission (FTC) & Apartment Bridge Trust & Safety',
+        updated: 'Updated June 2026',
+        overview: 'Scammers frequently clone affordable housing listings on social media and Craigslist to steal deposits and personal identity information.',
+        sections: [
+          {
+            heading: 'Red Flag #1: Asking for Application or Waitlist Fees via P2P Apps',
+            content: 'Legitimate affordable housing programs and HUD waitlists NEVER require fees sent via Zelle, Venmo, CashApp, cryptocurrency, or wire transfer.'
+          },
+          {
+            heading: 'Red Flag #2: "Guaranteed" Voucher Placement',
+            content: 'Nobody can sell, transfer, or guarantee a government Housing Choice Voucher. Anyone claiming they can fast-track a waitlist for a fee is committing federal fraud.'
+          },
+          {
+            heading: 'Red Flag #3: Refusing In-Person or Verified Virtual Tours',
+            content: 'Always verify property management contact information through official state housing finance agency (HFA) directories or verified Apartment Bridge listings.'
+          }
+        ],
+        downloads: ['Rental_Scam_Prevention_Guide_2026.pdf (110 KB)']
+      }
+    ];
+
+    function openResourceModal(id = 0) {
+      const modal = document.getElementById('resourceModal');
+      if (!modal) return;
+      renderResourceModal(id);
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeResourceModal() {
+      const modal = document.getElementById('resourceModal');
+      if (!modal) return;
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function handleResourceOverlayClick(e) {
+      if (e.target.id === 'resourceModal') {
+        closeResourceModal();
+      }
+    }
+
+    function renderResourceModal(id) {
+      const item = RESOURCES_DATA.find(r => r.id === id) || RESOURCES_DATA[0];
+      const titleEl = document.getElementById('resModalTopTitle');
+      const metaEl = document.getElementById('resModalTopMeta');
+      const bodyEl = document.getElementById('resourceModalBody');
+
+      if (titleEl) titleEl.textContent = item.title;
+      if (metaEl) metaEl.textContent = `${item.category} · ${item.duration}`;
+
+      if (bodyEl) {
+        bodyEl.innerHTML = `
+          <div>
+            <div style="position:relative;height:240px;overflow:hidden;background:#0f172a">
+              <img src="${item.image}" alt="${item.title}" style="width:100%;height:100%;object-fit:cover;opacity:0.9">
+              <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,0.1) 0%,rgba(15,23,42,0.85) 100%)"></div>
+              <div style="position:absolute;bottom:16px;left:20px;right:20px;color:#fff">
+                <span class="badge ${item.badgeClass}" style="margin-bottom:8px">${item.category} · ${item.duration}</span>
+                <h2 style="font-size:20px;font-weight:800;line-height:1.3;margin:4px 0">${item.title}</h2>
+                <p style="font-size:12px;opacity:0.85;margin:4px 0 0">${item.author} · ${item.updated}</p>
+              </div>
+            </div>
+
+            <div style="padding:24px;display:grid;gap:18px">
+              <div class="card pad" style="background:var(--blue-50);border-color:var(--blue-100);font-size:13.5px;line-height:1.55;color:var(--blue-900)">
+                <b>Overview:</b> ${item.overview}
+              </div>
+
+              ${item.sections.map(s => `
+                <div>
+                  <h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:0 0 6px">${s.heading}</h3>
+                  <p style="font-size:13.5px;color:var(--ink-2);line-height:1.6;margin:0;white-space:pre-line">${s.content}</p>
+                </div>
+              `).join('')}
+
+              ${item.downloads && item.downloads.length ? `
+                <div style="border-top:1px solid var(--line);padding-top:16px">
+                  <h4 style="font-size:13.5px;font-weight:700;margin:0 0 10px">Downloadable Attachments & Templates</h4>
+                  <div style="display:flex;gap:10px;flex-wrap:wrap">
+                    ${item.downloads.map(d => `
+                      <button class="btn btn-outline btn-sm" onclick="showAppToast('Downloading ${d}...', '📥')">
+                        <svg style="width:14px;height:14px"><use href="#i-down"/></svg> ${d}
+                      </button>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+
+              <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:16px;margin-top:8px">
+                <button class="btn btn-ghost btn-sm" onclick="showAppToast('Resource saved to reading list! 📚', '📑')">
+                  <svg style="width:15px;height:15px"><use href="#i-heart"/></svg> Save to My Resources
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="closeResourceModal()">
+                  Close Reader
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+  
+
+    /* ============ Applications & Waitlists Controller ============ */
+    function filterUserApps(cat, btn) {
+      document.querySelectorAll('.user-filter-btn').forEach(b => {
+        b.classList.remove('btn-primary');
+        b.classList.add('btn-outline');
+      });
+      if (btn) {
+        btn.classList.remove('btn-outline');
+        btn.classList.add('btn-primary');
+      } else {
+        const targetBtn = document.querySelector('.user-filter-btn[data-cat="' + cat + '"]');
+        if (targetBtn) {
+          targetBtn.classList.remove('btn-outline');
+          targetBtn.classList.add('btn-primary');
+        }
+      }
+      
+      const cards = document.querySelectorAll('.user-app-card');
+      cards.forEach(c => {
+        if (cat === 'all') {
+          c.style.display = 'block';
+        } else {
+          c.style.display = c.dataset.cat === cat ? 'block' : 'none';
+        }
+      });
+    }
+
+    function searchUserApps(query) {
+      const q = (query || '').toLowerCase().trim();
+      document.querySelectorAll('.user-app-card').forEach(c => {
+        const text = c.textContent.toLowerCase();
+        c.style.display = text.includes(q) ? 'block' : 'none';
+      });
+    }
+
+    function openAppDetailsModal(title, appId, status, date, unit, manager) {
+      const modal = document.getElementById('userAppDetailsModal');
+      if (!modal) return;
+      document.getElementById('appDetModalTitle').textContent = title || 'Application Details';
+      document.getElementById('appDetModalId').textContent = 'Application ID: ' + (appId || '#AB-2026-0000');
+      document.getElementById('appDetModalStatus').textContent = status || 'Under Review';
+      document.getElementById('appDetModalDate').textContent = date || 'Aug 2026';
+      document.getElementById('appDetModalUnit').textContent = unit || 'Affordable Unit';
+      document.getElementById('appDetModalManager').textContent = manager || 'Property Management';
+      modal.style.display = 'flex';
+    }
+
+    function closeAppDetailsModal() {
+      const modal = document.getElementById('userAppDetailsModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function openUserUploadDocModal(propName, docType) {
+      const modal = document.getElementById('userDocUploadModal');
+      if (!modal) return;
+      document.getElementById('userDocModalSub').textContent = (propName || 'Property') + ' · Compliance Verification';
+      document.getElementById('userDocModalType').value = docType || 'Recent 30-Day Pay Stubs';
+      modal.style.display = 'flex';
+    }
+
+    function closeUserUploadDocModal() {
+      const modal = document.getElementById('userDocUploadModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function handleUserDocUploadSubmit(e) {
+      if (e) e.preventDefault();
+      closeUserUploadDocModal();
+      
+      const urgentAlert = document.getElementById('user-app-urgent-alert');
+      if (urgentAlert) {
+        urgentAlert.className = 'alert ok';
+        urgentAlert.innerHTML = '<div style="display:flex;gap:10px;align-items:center"><svg style="width:20px;height:20px;color:var(--green-700)"><use href="#i-check"/></svg><span><b>Document Submitted Successfully:</b> Your pay stubs have been uploaded for Willow Park Flats. Status changed to <b>Under Review</b>.</span></div>';
+      }
+      
+      const willowCard = document.querySelector('[data-name="willow park flats"]');
+      if (willowCard) {
+        willowCard.dataset.cat = 'review';
+        const badge = willowCard.querySelector('.badge');
+        if (badge) {
+          badge.style.background = '#ecfdf5';
+          badge.style.color = '#047857';
+          badge.style.borderColor = '#a7f3d0';
+          badge.textContent = '● Document Submitted · Under Review';
+        }
+      }
+      
+      alert('✓ Verification document uploaded successfully! The leasing manager will review it within 2 business days.');
+    }
+
+    function downloadWaitlistCertificate(propName, appId, pos) {
+      alert('📄 Proof of Waitlist Certificate Generated!\n\nProperty: ' + propName + '\nApplication ID: ' + appId + '\nOfficial Queue Position: #' + pos + '\nTimestamp: ' + new Date().toLocaleString() + '\n\nYour certificate is saved to your records.');
+    }
+
+    function exportApplicationsPDF() {
+      alert('📑 Exporting your Official Housing Application & Waitlist History (4 Records) as PDF summary...');
+      window.print();
+    }
+
+    function withdrawUserApp(propName, btn) {
+      if (confirm('Are you sure you want to withdraw your housing application for ' + propName + '? This action cannot be undone.')) {
+        const card = btn.closest('.user-app-card');
+        if (card) {
+          card.style.opacity = '0.5';
+          card.innerHTML = '<div style="padding:16px;text-align:center;color:var(--mut)">Application for <b>' + propName + '</b> was withdrawn on request.</div>';
+        }
+      }
+    }
+
+
+
+    /* ============ PM Inquiries & Applications Controller ============ */
+    function filterPmInquiries(cat, btn) {
+      document.querySelectorAll('.pm-inquiry-chip').forEach(c => c.classList.remove('on'));
+      if (btn) btn.classList.add('on');
+      
+      const rows = document.querySelectorAll('.pm-inquiry-row');
+      rows.forEach(r => {
+        if (cat === 'all') {
+          r.style.display = '';
+        } else {
+          r.style.display = r.dataset.cat.includes(cat) ? '' : 'none';
+        }
+      });
+    }
+
+    function filterPmInquiriesByProp(prop) {
+      const rows = document.querySelectorAll('.pm-inquiry-row');
+      rows.forEach(r => {
+        if (prop === 'all') {
+          r.style.display = '';
+        } else {
+          r.style.display = r.dataset.prop === prop ? '' : 'none';
+        }
+      });
+    }
+
+    function searchPmInquiries(query) {
+      const q = (query || '').toLowerCase().trim();
+      document.querySelectorAll('.pm-inquiry-row').forEach(r => {
+        r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    }
+
+    function openPmReviewModal(name, prop, income, prog, status, avatar) {
+      const modal = document.getElementById('pmReviewAppModal');
+      if (!modal) return;
+      document.getElementById('pmModalName').textContent = name;
+      document.getElementById('pmModalProp').textContent = prop + ' · Verified Applicant';
+      document.getElementById('pmModalIncome').textContent = income;
+      document.getElementById('pmModalProg').textContent = prog;
+      document.getElementById('pmModalStatus').textContent = status;
+      const img = document.querySelector('#pmModalAvatar img');
+      if (img && avatar) img.src = avatar;
+      modal.style.display = 'flex';
+    }
+
+    function closePmReviewModal() {
+      const modal = document.getElementById('pmReviewAppModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+</script>
+
+  <!-- Universal Toast Notification -->
+  <div id="appToast" class="app-toast" role="status" aria-live="polite">
+    <span id="toastIcon" style="font-size:18px">❤️</span>
+    <span id="toastMsg">Saved to your favorites</span>
+  </div>
+
+  <!-- Waitlist Application Modal -->
+  <div id="applyModal" class="app-modal-overlay" onclick="handleApplyOverlayClick(event)" aria-modal="true" role="dialog" aria-label="Waitlist Application">
+    <div class="app-modal-dialog" style="max-width:640px">
+      <div class="app-modal-header">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="app-modal-icon">
+            <svg style="width:20px;height:20px;color:#fff"><use href="#i-doc"/></svg>
+          </div>
+          <div>
+            <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--ink,#16283B)">Apply / Join Waitlist</h3>
+            <p style="margin:2px 0 0;font-size:12.5px;color:var(--mut,#51667A)">Cedar Grove Commons · Sacramento, CA · Free Pre-App</p>
+          </div>
+        </div>
+        <button onclick="closeApplyModal()" class="app-modal-close" title="Close (Esc)">✕</button>
+      </div>
+      <div id="applyModalContent" class="app-modal-content">
+        <!-- Form rendered by openApplyModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Resource Detail Reader Modal -->
+  <div id="resourceModal" class="app-modal-overlay" onclick="handleResourceOverlayClick(event)" aria-modal="true" role="dialog" aria-label="Housing Resource Reader">
+    <div class="app-modal-dialog" style="max-width:740px">
+      <div class="app-modal-header">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="app-modal-icon" style="background:linear-gradient(135deg,#2563eb,#38bdf8)">
+            <svg style="width:20px;height:20px;color:#fff"><use href="#i-doc"/></svg>
+          </div>
+          <div>
+            <h3 id="resModalTopTitle" style="margin:0;font-size:16.5px;font-weight:800;color:var(--ink,#16283B)">Housing Guide &amp; Resources</h3>
+            <p id="resModalTopMeta" style="margin:2px 0 0;font-size:12px;color:var(--mut,#51667A)">Apartment Bridge Education Hub</p>
+          </div>
+        </div>
+        <button onclick="closeResourceModal()" class="app-modal-close" title="Close (Esc)">✕</button>
+      </div>
+      <div id="resourceModalBody" class="app-modal-content" style="padding:0">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox Photo Gallery Modal -->
+  <div id="galleryModal" class="gallery-modal-overlay" onclick="handleGalleryOverlayClick(event)" aria-modal="true" role="dialog" aria-label="Photo Gallery Lightbox">
+    <div class="gallery-modal-head">
+      <div>
+        <div id="galleryModalTitle" style="font-weight:700;font-size:16px;letter-spacing:-0.01em">Cedar Grove Commons</div>
+        <div id="galleryModalCount" style="font-size:12px;color:rgba(255,255,255,0.7);font-weight:600">Photo 1 of 10</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button onclick="closeGalleryModal()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;cursor:pointer;font-size:18px;font-weight:700;transition:all 0.2s" onmouseover="this.style.background='rgba(239,68,68,0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'" title="Close (Esc)">
+          ✕
+        </button>
+      </div>
+    </div>
+    <div class="gallery-modal-body">
+      <button class="gallery-modal-btn" onclick="prevGalleryPhoto(event)" aria-label="Previous Photo" title="Previous (Left Arrow)">
+        <svg style="width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <div class="gallery-modal-main-img-wrap">
+        <img id="galleryModalImg" class="gallery-modal-img" src="assets/prop-1.jpg" alt="Property Gallery Photo">
+        <div id="galleryModalDesc" style="color:rgba(255,255,255,0.88);font-size:13.5px;margin-top:14px;text-align:center;max-width:720px;line-height:1.45;background:rgba(0,0,0,0.35);padding:6px 16px;border-radius:20px;backdrop-filter:blur(4px)"></div>
+      </div>
+      <button class="gallery-modal-btn" onclick="nextGalleryPhoto(event)" aria-label="Next Photo" title="Next (Right Arrow)">
+        <svg style="width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+    </div>
+    <div class="gallery-modal-footer">
+      <div id="galleryThumbTrack" class="gallery-thumbnails-track">
+        <!-- Thumbnails rendered dynamically -->
+      </div>
+    </div>
+  </div>
+  <!-- Add Property Listing Modal -->
+  <div id="addListingModal" class="app-modal-overlay" onclick="handleAddListingOverlayClick(event)" aria-modal="true" role="dialog" aria-label="Add Property Listing">
+    <div class="app-modal-dialog" style="max-width:680px">
+      <div class="app-modal-header">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="app-modal-icon" style="background:linear-gradient(135deg,#1e40af,#3b82f6)">
+            <svg style="width:20px;height:20px;color:#fff"><use href="#i-bldg"/></svg>
+          </div>
+          <div>
+            <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--ink,#16283B)">Create Property Listing</h3>
+            <p style="margin:2px 0 0;font-size:12.5px;color:var(--mut,#51667A)">Property Manager Portal · BRIDGE Housing</p>
+          </div>
+        </div>
+        <button onclick="closeAddListingModal()" class="app-modal-close" title="Close (Esc)">✕</button>
+      </div>
+      <div class="app-modal-content" style="padding:22px 24px">
+        <form id="addListingForm" onsubmit="handleAddListingSubmit(event)" style="display:grid;gap:18px">
+          
+          <div class="alert info" style="font-size:12.5px;padding:10px 14px;display:flex;gap:10px;align-items:center;border-radius:10px">
+            <svg style="width:18px;height:18px;flex:none;color:var(--blue-700)"><use href="#i-info"/></svg>
+            <span>Listings are automatically verified against state LIHTC &amp; HUD databases and syndicated to qualified local renters.</span>
+          </div>
+
+          <!-- Section 1: Basic Information -->
+          <div>
+            <h4 style="margin:0 0 10px;font-size:13.5px;color:var(--blue-800);display:flex;align-items:center;gap:6px">
+              <span class="badge b-blue" style="font-size:11px;padding:2px 7px">1</span> Property Information
+            </h4>
+            <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:12px">
+              <div class="field">
+                <label style="font-size:12px;font-weight:600">Property Name *</label>
+                <input id="newPropName" type="text" class="input" required placeholder="e.g. Sierra Vista Court" value="Sierra Vista Terrace">
+              </div>
+              <div class="field">
+                <label style="font-size:12px;font-weight:600">Housing Program *</label>
+                <select id="newPropProg" class="input" required>
+                  <option value="LIHTC 60%">LIHTC 60% AMI</option>
+                  <option value="LIHTC 50%">LIHTC 50% AMI</option>
+                  <option value="LIHTC 30%">LIHTC 30% AMI (Extremely Low)</option>
+                  <option value="Section 8 PBV">Section 8 Project-Based (PBV)</option>
+                  <option value="Sec. 202">Section 202 (Senior 62+)</option>
+                  <option value="Inclusionary">Inclusionary / BMR</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-top:10px">
+              <div class="field">
+                <label style="font-size:12px;font-weight:600">Street Address *</label>
+                <input id="newPropAddress" type="text" class="input" required placeholder="Street address" value="1420 Stockton Blvd">
+              </div>
+              <div class="field">
+                <label style="font-size:12px;font-weight:600">City *</label>
+                <input id="newPropCity" type="text" class="input" required placeholder="City" value="Sacramento, CA">
+              </div>
+              <div class="field">
+                <label style="font-size:12px;font-weight:600">ZIP Code *</label>
+                <input id="newPropZip" type="text" class="input" required placeholder="ZIP" value="95817">
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Units & Pricing -->
+          <div>
+            <h4 style="margin:0 0 10px;font-size:13.5px;color:var(--blue-800);display:flex;align-items:center;gap:6px">
+              <span class="badge b-blue" style="font-size:11px;padding:2px 7px">2</span> Units, Rent &amp; Status
+            </h4>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:12px">
+              <div class="field">
+                <label style="font-size:12px;font-weight:600">Total Units *</label>
+                <input id="newPropUnits" type="number" min="1" class="input" required value="112" placeholder="100">
+              </div>
+              <div class="field">
+                <label style="font-size:12px;font-weight:600">Available Vacancies</label>
+                <input id="newPropVacant" type="number" min="0" class="input" value="8" placeholder="0">
+              </div>
+              <div class="field">
+                <label style="font-size:12px;font-weight:600">Waitlist Status *</label>
+                <select id="newPropStatus" class="input" required>
+                  <option value="Waitlist open">Waitlist open</option>
+                  <option value="Units available">Units available</option>
+                  <option value="Lottery open">Lottery open</option>
+                  <option value="Waitlist closed">Waitlist closed</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
+              <div class="field">
+                <label style="font-size:12px;font-weight:600">Monthly Rent Range *</label>
+                <input id="newPropRent" type="text" class="input" required placeholder="e.g. $980 - $1,340" value="$980 – $1,350">
+              </div>
+              <div class="field">
+                <label style="font-size:12px;font-weight:600">Unit Mix / Bedrooms</label>
+                <input id="newPropMix" type="text" class="input" placeholder="e.g. Studio, 1BR, 2BR, 3BR" value="1BR, 2BR, 3BR">
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Voucher Policy & Amenities -->
+          <div>
+            <h4 style="margin:0 0 10px;font-size:13.5px;color:var(--blue-800);display:flex;align-items:center;gap:6px">
+              <span class="badge b-blue" style="font-size:11px;padding:2px 7px">3</span> Accessibility &amp; Section 8 Vouchers
+            </h4>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;background:var(--bg,#f8fafc);padding:12px;border-radius:10px;border:1px solid var(--line,#e2e8f0)">
+              <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;cursor:pointer">
+                <input type="checkbox" checked style="accent-color:var(--blue-700);width:16px;height:16px"> Accepts Section 8 Vouchers
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;cursor:pointer">
+                <input type="checkbox" checked style="accent-color:var(--blue-700);width:16px;height:16px"> ADA Accessible Units
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;cursor:pointer">
+                <input type="checkbox" checked style="accent-color:var(--blue-700);width:16px;height:16px"> Near Public Transit
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;cursor:pointer">
+                <input type="checkbox" style="accent-color:var(--blue-700);width:16px;height:16px"> Pet Friendly
+              </label>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px;padding-top:14px;border-top:1px solid var(--line,#e2e8f0)">
+            <button type="button" class="btn btn-ghost" onclick="closeAddListingModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary btn-lg" style="gap:8px">
+              <svg style="width:16px;height:16px"><use href="#i-check"/></svg> Publish Listing
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Compliance Document Modal -->
+  <div id="uploadDocModal" class="app-modal-overlay" onclick="handleUploadDocOverlayClick(event)" aria-modal="true" role="dialog" aria-label="Upload Document">
+    <div class="app-modal-dialog" style="max-width:620px">
+      <div class="app-modal-header">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="app-modal-icon" style="background:linear-gradient(135deg,#7c3aed,#9333ea)">
+            <svg style="width:20px;height:20px;color:#fff"><use href="#i-up"/></svg>
+          </div>
+          <div>
+            <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--ink,#16283B)">Upload Compliance Document</h3>
+            <p style="margin:2px 0 0;font-size:12.5px;color:var(--mut,#51667A)">Property Manager Compliance &amp; Template Hub</p>
+          </div>
+        </div>
+        <button onclick="closeUploadDocModal()" class="app-modal-close" title="Close (Esc)">✕</button>
+      </div>
+      <div class="app-modal-content" style="padding:22px 24px">
+        <form id="uploadDocForm" onsubmit="handleUploadDocSubmit(event)" style="display:grid;gap:16px">
+          
+          <div class="field">
+            <label style="font-size:12px;font-weight:600">Document Title *</label>
+            <input id="newDocTitle" type="text" class="input" required placeholder="e.g. 2026 TCAC Tenant Income Certification (TIC)" value="2026 California TCAC Income Certification Form.pdf">
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="field">
+              <label style="font-size:12px;font-weight:600">Category / Type *</label>
+              <select id="newDocCategory" class="input" required>
+                <option value="LIHTC Standard">LIHTC Standard (Form 8609)</option>
+                <option value="HUD Section 8">HUD Section 8 (HAP Addendum)</option>
+                <option value="Accessibility">Accessibility &amp; Reasonable Accommodation</option>
+                <option value="Lease Agreement">Standard Lease Agreement</option>
+                <option value="Utility Schedule">Utility Allowance Schedule</option>
+                <option value="Other">Other Regulatory Form</option>
+              </select>
+            </div>
+            <div class="field">
+              <label style="font-size:12px;font-weight:600">Applicable Property</label>
+              <select id="newDocProp" class="input">
+                <option value="All Properties">All Properties (Global Template)</option>
+                <option value="Cedar Grove Commons">Cedar Grove Commons</option>
+                <option value="Riverline Flats">Riverline Flats</option>
+                <option value="Marigold Senior Villas">Marigold Senior Villas</option>
+                <option value="Fernwood Court">Fernwood Court</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Drag & Drop Dropzone -->
+          <div class="field">
+            <label style="font-size:12px;font-weight:600">Document File *</label>
+            <div style="border:2px dashed var(--blue-400,#60a5fa);border-radius:12px;padding:24px;text-align:center;background:var(--blue-50,#eff6ff);cursor:pointer;transition:all 0.2s" onclick="document.getElementById('docFileInput').click()">
+              <input id="docFileInput" type="file" style="display:none" onchange="handleDocFileSelect(this)">
+              <div style="width:42px;height:42px;border-radius:50%;background:#fff;color:var(--blue-700);display:grid;place-items:center;margin:0 auto 8px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+                <svg style="width:20px;height:20px"><use href="#i-doc"/></svg>
+              </div>
+              <div id="dropzoneText" style="font-size:13.5px;font-weight:700;color:var(--blue-800)">Click to browse or drag and drop file here</div>
+              <p style="font-size:11.5px;color:var(--mut,#64748b);margin:4px 0 0">PDF, DOCX, XLSX up to 25MB · Pre-screened for ADA compliance</p>
+            </div>
+          </div>
+
+          <div class="field">
+            <label style="font-size:12px;font-weight:600">Description &amp; Instructions</label>
+            <textarea id="newDocDesc" class="input" rows="2" placeholder="Brief explanation for onsite leasing staff..." style="resize:vertical">Official 2026 income &amp; asset verification package for TCAC / LIHTC recertifications.</textarea>
+          </div>
+
+          <!-- Actions -->
+          <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:6px;padding-top:14px;border-top:1px solid var(--line,#e2e8f0)">
+            <button type="button" class="btn btn-ghost" onclick="closeUploadDocModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary btn-lg" style="gap:8px">
+              <svg style="width:16px;height:16px"><use href="#i-up"/></svg> Upload &amp; Publish Document
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Document Upload Modal -->
+  <div id="userDocUploadModal" class="app-modal-overlay" onclick="if(event.target===this)closeUserUploadDocModal()" aria-modal="true" role="dialog" aria-label="Upload Verification Document" style="display:none">
+    <div class="app-modal-dialog" style="max-width:560px">
+      <div class="app-modal-header">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="app-modal-icon" style="background:linear-gradient(135deg,var(--amber-500,#f59e0b),#d97706)">
+            <svg style="width:20px;height:20px;color:#fff"><use href="#i-up"/></svg>
+          </div>
+          <div>
+            <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--ink,#16283B)">Upload Required Document</h3>
+            <p id="userDocModalSub" style="margin:2px 0 0;font-size:12.5px;color:var(--mut,#51667A)">Willow Park Flats · Income Verification</p>
+          </div>
+        </div>
+        <button onclick="closeUserUploadDocModal()" class="app-modal-close" title="Close (Esc)">✕</button>
+      </div>
+      <div class="app-modal-content" style="padding:22px 24px">
+        <form id="userDocUploadForm" onsubmit="handleUserDocUploadSubmit(event)" style="display:grid;gap:16px">
+          <div class="field">
+            <label style="font-size:12px;font-weight:600">Document Type *</label>
+            <input id="userDocModalType" type="text" class="input" readonly style="background:var(--bg);font-weight:600" value="Recent 30-Day Pay Stubs">
+          </div>
+          <div class="field">
+            <label style="font-size:12px;font-weight:600">Document File (PDF, JPG, PNG up to 15MB) *</label>
+            <div style="border:2px dashed var(--blue-400,#60a5fa);border-radius:12px;padding:24px;text-align:center;background:var(--blue-50,#eff6ff);cursor:pointer;transition:all 0.2s" onclick="document.getElementById('userDocFileInput').click()">
+              <input id="userDocFileInput" type="file" style="display:none" onchange="const f=this.files[0];if(f){document.getElementById('userDropText').textContent='✓ Selected: '+f.name;document.getElementById('userDropText').style.color='var(--green-700)';}">
+              <div style="width:42px;height:42px;border-radius:50%;background:#fff;color:var(--blue-700);display:grid;place-items:center;margin:0 auto 8px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+                <svg style="width:20px;height:20px"><use href="#i-doc"/></svg>
+              </div>
+              <div id="userDropText" style="font-size:13.5px;font-weight:700;color:var(--blue-800)">Click to browse or drag file here</div>
+              <p style="font-size:11.5px;color:var(--mut,#64748b);margin:4px 0 0">Encrypted with 256-bit SSL · Directly sent to certified compliance officer</p>
+            </div>
+          </div>
+          <div class="field">
+            <label style="font-size:12px;font-weight:600">Note for Property Manager (Optional)</label>
+            <textarea class="input" rows="2" placeholder="e.g. Attached are my last 2 consecutive pay stubs from Kaiser Permanente..." style="resize:vertical">Enclosing both July and August paystubs for Maria Reyes.</textarea>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:6px;padding-top:14px;border-top:1px solid var(--line,#e2e8f0)">
+            <button type="button" class="btn btn-ghost" onclick="closeUserUploadDocModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary btn-lg" style="gap:8px">
+              <svg style="width:16px;height:16px"><use href="#i-up"/></svg> Submit Verification File
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Application Details & Certificate Modal -->
+  <div id="userAppDetailsModal" class="app-modal-overlay" onclick="if(event.target===this)closeAppDetailsModal()" aria-modal="true" role="dialog" aria-label="Application Summary" style="display:none">
+    <div class="app-modal-dialog" style="max-width:640px">
+      <div class="app-modal-header" style="background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;border-radius:16px 16px 0 0;padding:20px 24px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.2);display:grid;place-items:center">
+            <svg style="width:20px;height:20px;color:#fff"><use href="#i-door"/></svg>
+          </div>
+          <div>
+            <h3 id="appDetModalTitle" style="margin:0;font-size:18px;font-weight:800;color:#fff">Cedar Grove Commons</h3>
+            <p id="appDetModalId" style="margin:2px 0 0;font-size:12.5px;color:rgba(255,255,255,0.85)">Application ID: #AB-2026-8941</p>
+          </div>
+        </div>
+        <button onclick="closeAppDetailsModal()" class="app-modal-close" style="color:#fff;background:rgba(255,255,255,0.15)" title="Close">✕</button>
+      </div>
+      <div class="app-modal-content" style="padding:24px">
+        <div style="display:grid;gap:16px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;background:var(--bg);padding:14px;border-radius:10px;border:1px solid var(--line)">
+            <div><span class="xs mut">Current Status:</span><div id="appDetModalStatus" style="font-weight:700;color:var(--blue-700)">Waitlist Position #14</div></div>
+            <div><span class="xs mut">Submitted Date:</span><div id="appDetModalDate" style="font-weight:700;color:var(--ink)">Aug 14, 2026</div></div>
+            <div><span class="xs mut">Unit &amp; Rent:</span><div id="appDetModalUnit" style="font-weight:700;color:var(--ink)">2 Bedroom / 1 Bath ($980/mo)</div></div>
+            <div><span class="xs mut">Management Org:</span><div id="appDetModalManager" style="font-weight:700;color:var(--ink)">BRIDGE Housing Northern CA</div></div>
+          </div>
+
+          <div>
+            <h4 style="margin:0 0 8px;font-size:14px;font-weight:700">Household Snapshot on File</h4>
+            <div style="display:grid;gap:6px;font-size:13px;background:var(--bg);padding:12px;border-radius:8px;border:1px solid var(--line)">
+              <div>• <b>Primary Applicant:</b> Maria Rodriguez (Reyes)</div>
+              <div>• <b>Household Size:</b> 4 Persons (2 Adults, 2 Dependants)</div>
+              <div>• <b>Verified Annual Income:</b> $42,000 / year (33% Sacramento AMI)</div>
+              <div>• <b>Housing Voucher:</b> Section 8 Housing Choice Voucher (PBV Eligible)</div>
+              <div>• <b>Preferences Claimed:</b> Sacramento County Resident (Tier 1 Priority)</div>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap">
+            <span class="xs mut">Verified under HUD Title VIII Fair Housing Act</span>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-outline btn-sm" onclick="window.print()"><svg style="width:14px;height:14px"><use href="#i-doc"/></svg> Print Summary</button>
+              <button class="btn btn-primary btn-sm" onclick="closeAppDetailsModal()">Done</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Property Manager Application Review Modal -->
+  <div id="pmReviewAppModal" class="app-modal-overlay" onclick="if(event.target===this)closePmReviewModal()" aria-modal="true" role="dialog" aria-label="Review Applicant File" style="display:none">
+    <div class="app-modal-dialog" style="max-width:620px">
+      <div class="app-modal-header" style="background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;border-radius:16px 16px 0 0;padding:20px 24px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span id="pmModalAvatar" class="avatar-circle" style="width:42px;height:42px;overflow:hidden;padding:0;flex-shrink:0;border:2px solid rgba(255,255,255,0.3)"><img src="assets/avatar-maria.jpg" alt="Applicant" style="width:100%;height:100%;object-fit:cover;display:block"></span>
+          <div>
+            <h3 id="pmModalName" style="margin:0;font-size:18px;font-weight:800;color:#fff">Maria Reyes</h3>
+            <p id="pmModalProp" style="margin:2px 0 0;font-size:12.5px;color:rgba(255,255,255,0.85)">Cedar Grove Commons · Application #AB-2026-8941</p>
+          </div>
+        </div>
+        <button onclick="closePmReviewModal()" class="app-modal-close" style="color:#fff;background:rgba(255,255,255,0.15)" title="Close">✕</button>
+      </div>
+      <div class="app-modal-content" style="padding:24px">
+        <div style="display:grid;gap:16px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;background:var(--bg,#f8fafc);padding:14px;border-radius:10px;border:1px solid var(--line,#e2e8f0)">
+            <div><span class="xs mut">Income &amp; Size:</span><div id="pmModalIncome" style="font-weight:700;color:var(--ink)">4 Persons · $42,000/yr</div></div>
+            <div><span class="xs mut">Program / Subsidy:</span><div id="pmModalProg" style="font-weight:700;color:var(--blue-700)">Section 8 PBV Voucher</div></div>
+            <div><span class="xs mut">Current Status:</span><div id="pmModalStatus" style="font-weight:700;color:var(--green-700)">Waitlist Queue #14</div></div>
+            <div><span class="xs mut">Fair Housing Audit:</span><div style="font-weight:700;color:var(--green-700)">✓ Passed TCAC Screening</div></div>
+          </div>
+
+          <div>
+            <h4 style="margin:0 0 8px;font-size:13.5px;font-weight:700">Income Calculation &amp; Limits (Sacramento County 2026)</h4>
+            <div style="font-size:12.5px;background:var(--bg,#f8fafc);padding:12px;border-radius:8px;border:1px solid var(--line);line-height:1.6">
+              <div>• <b>50% AMI Limit (4-person):</b> $46,500/yr (Applicant is <b>$4,500 below ceiling ✓</b>)</div>
+              <div>• <b>Housing Voucher Portion:</b> Covers rent exceeding 30% of tenant adjusted income</div>
+              <div>• <b>Background &amp; Rental Verification:</b> Verified by Apartment Bridge Automated Screening</div>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap">
+            <button class="btn btn-outline btn-sm" onclick="alert('Adverse action notice dialog opened.')" style="color:var(--red-700);border-color:#fecaca">Decline</button>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-outline btn-sm" onclick="alert('Document request sent to applicant.')">Request Documents</button>
+              <button class="btn btn-primary btn-sm" onclick="alert('✓ Applicant successfully verified and approved for official property waitlist queue!');closePmReviewModal()">✓ Approve for Waitlist</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 
 </html>

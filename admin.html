@@ -2,16 +2,18 @@
 <html lang="en" data-theme="light">
 
 <head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="shortcut icon" href="assets/favicon.svg">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Doorway Ops · Super Admin</title>
+  <title>Apartment Bridge · Super Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap"
     rel="stylesheet">
   <style>
     /* ============================================================
-   DOORWAY OPS · ENTERPRISE ADMIN DESIGN SYSTEM
+   APARTMENT BRIDGE · ENTERPRISE ADMIN DESIGN SYSTEM
    Voice: civic data console. Every number speaks mono.
 ============================================================ */
     :root {
@@ -1783,6 +1785,9 @@
       }
     }
   </style>
+  <!-- Leaflet OpenStreetMap Engine -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
 <body>
@@ -1987,12 +1992,46 @@
     </symbol>
   </svg>
 
-  <div class="shell">
+    <!-- ============ ADMIN LOGIN SCREEN ============ -->
+  <div id="adminLoginScreen" style="display:none;position:fixed;inset:0;background:radial-gradient(45rem 35rem at 50% -10%, rgba(43,127,199,0.18), transparent), radial-gradient(45rem 35rem at 80% 110%, rgba(47,162,113,0.15), transparent), var(--bg);z-index:9999;place-items:center;overflow-y:auto;padding:24px 16px">
+    <div style="width:min(440px,100%);background:var(--surface,#fff);border:1px solid var(--line,#E3E9EF);border-radius:16px;padding:36px 32px;box-shadow:0 20px 48px rgba(15,34,49,0.14)">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+        <img src="assets/logo.png" alt="Apartment Bridge" style="height:36px;width:auto;display:block">
+        <span style="font:700 11px/1 var(--mono);color:#2FA271;background:rgba(47,162,113,.12);border:1px solid rgba(47,162,113,.3);padding:4px 8px;border-radius:99px;margin-left:auto">ADMIN PORTAL</span>
+      </div>
+      <h1 style="font-size:22px;font-weight:700;color:var(--ink);margin:0 0 6px">Admin Sign In</h1>
+      <p style="font-size:13px;color:var(--mut);margin:0 0 24px">Authorized staff and platform moderators only.</p>
+      
+      <form id="adminLoginForm" onsubmit="handleAdminLogin(event);return false" style="display:grid;gap:16px">
+        <div class="field">
+          <label for="adminEmail" style="display:block;font-size:12px;font-weight:600;color:var(--ink);margin-bottom:6px">Admin Email</label>
+          <input class="input" id="adminEmail" type="email" value="admin@apartmentbridge.org" required style="width:100%;padding:10px 12px;font-size:13.5px;border:1px solid var(--line);border-radius:8px;background:var(--surface)">
+        </div>
+        <div class="field">
+          <label for="adminPassword" style="display:block;font-size:12px;font-weight:600;color:var(--ink);margin-bottom:6px">Password</label>
+          <input class="input" id="adminPassword" type="password" value="sacramento2026!" required style="width:100%;padding:10px 12px;font-size:13.5px;border:1px solid var(--line);border-radius:8px;background:var(--surface)">
+        </div>
+        <div style="display:flex;align-items:center;font-size:12px">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--mut)">
+            <input type="checkbox" checked> Remember
+          </label>
+        </div>
+        <button type="submit" class="btn btn-pri" style="width:100%;justify-content:center;padding:12px;font-size:14px;font-weight:600;margin-top:6px;background:var(--blue-600,#2B7FC7);color:#fff;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;gap:8px">
+          Sign in to Dashboard →
+        </button>
+      </form>
+
+    </div>
+  </div>
+  <div class="shell" id="adminShell">
     <!-- ============ SIDEBAR ============ -->
     <aside class="side" id="side">
-      <div class="brand"><span class="mk"><svg>
-            <use href="#i-door" />
-          </svg></span>Doorway Ops<small>ADMIN</small></div>
+      <div class="brand" style="display:flex;align-items:center;gap:10px;padding:8px 8px 18px">
+        <a href="#/dashboard" onclick="go('dashboard')" style="display:flex;align-items:center;text-decoration:none;cursor:pointer" title="Apartment Bridge Admin Dashboard">
+          <img src="assets/logo.png" alt="Apartment Bridge" style="height:44px;width:auto;display:block;filter:brightness(0) invert(1)">
+        </a>
+        <small style="margin-left:auto;font:600 9px/1 var(--mono);color:#7FD1A8;background:rgba(47,162,113,.15);border:1px solid rgba(47,162,113,.35);padding:3px 6px;border-radius:99px;letter-spacing:.08em">ADMIN</small>
+      </div>
       <nav aria-label="Admin">
         <p class="grp">Overview</p>
         <a href="#/dashboard" data-nav="dashboard" class="on"><svg>
@@ -2051,9 +2090,6 @@
         <a href="#/settings" data-nav="settings"><svg>
             <use href="#i-gear" />
           </svg>Settings</a>
-        <a href="#/design" data-nav="design"><svg>
-            <use href="#i-spark" />
-          </svg>Design System</a>
       </nav>
     </aside>
 
@@ -2074,7 +2110,35 @@
         <button class="icon-btn" aria-label="Notifications"><svg>
             <use href="#i-bell" />
           </svg><span class="ping"></span></button>
-        <button class="avatar" aria-label="Admin menu">AK</button>
+        <div style="position:relative" id="adminUserMenuWrap">
+          <button class="avatar" id="adminAvatarBtn" aria-label="Admin menu" onclick="toggleAdminUserDropdown(event)" style="overflow:hidden;padding:0;cursor:pointer;border:2px solid transparent;transition:border-color 0.2s">
+            <img src="assets/team-terrence.jpg" alt="Terrence Vance" style="width:100%;height:100%;object-fit:cover;display:block">
+          </button>
+          <!-- Admin User Profile Dropdown -->
+          <div id="adminUserDropdown" style="display:none;position:absolute;top:calc(100% + 10px);right:0;width:240px;background:var(--surface,#fff);border:1px solid var(--line,#E3E9EF);border-radius:12px;box-shadow:0 12px 32px rgba(15,34,49,0.18);z-index:1000;overflow:hidden">
+            <div style="padding:14px 16px;background:var(--sunken,#F1F5F8);border-bottom:1px solid var(--line,#E3E9EF);display:flex;align-items:center;gap:11px">
+              <img src="assets/team-terrence.jpg" alt="Terrence Vance" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex:none;border:1px solid var(--line)">
+              <div style="min-width:0;flex:1">
+                <div style="font-weight:700;font-size:13.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Terrence Vance</div>
+                <div style="font-size:11.5px;color:var(--mut);font-family:IBM Plex Mono,monospace">Super Admin</div>
+              </div>
+            </div>
+            <div style="padding:6px">
+              <a href="#/roles" onclick="closeAdminUserDropdown();go('roles')" style="display:flex;align-items:center;gap:10px;padding:9px 12px;font-size:13px;font-weight:600;color:var(--ink);border-radius:7px;text-decoration:none;transition:background 0.15s" onmouseover="this.style.background='var(--sunken)'" onmouseout="this.style.background='transparent'">
+                <svg style="width:16px;height:16px;color:var(--blue-600)"><use href="#i-user"/></svg> My profile
+              </a>
+            </div>
+            <div style="padding:6px;border-top:1px solid var(--line);background:var(--sunken)">
+              <button type="button" onclick="adminLogout()" style="width:100%;display:flex;align-items:center;gap:10px;padding:9px 12px;font-size:13px;font-weight:600;color:var(--red-600,#b91c1c);border-radius:7px;text-decoration:none;background:none;border:none;cursor:pointer;text-align:left;transition:background 0.15s" onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='transparent'">
+                <svg style="width:16px;height:16px;color:var(--red-600)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                  <polyline points="16 17 21 12 16 7"/>
+                  <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg> Log out
+              </button>
+            </div>
+          </div>
+        </div>
       </header>
 
       <!-- pulse rail: live pipeline health -->
@@ -2246,20 +2310,7 @@
                 <h4>Inventory heat</h4><span class="hint">by metro</span>
               </div>
               <div style="padding:14px 16px">
-                <div class="gmap" style="min-height:190px">
-                  <span class="blob"
-                    style="left:8%;top:30%;width:64px;height:64px;background:rgba(43,127,199,.28)"></span>
-                  <span class="blob"
-                    style="left:16%;top:60%;width:40px;height:40px;background:rgba(43,127,199,.22)"></span>
-                  <span class="blob"
-                    style="left:56%;top:64%;width:74px;height:74px;background:rgba(31,138,91,.3)"></span>
-                  <span class="blob"
-                    style="left:74%;top:26%;width:52px;height:52px;background:rgba(43,127,199,.26)"></span>
-                  <span class="dot" style="left:12%;top:38%;background:var(--blue-600)"></span>
-                  <span class="dot" style="left:60%;top:70%;background:var(--green-600)"></span>
-                  <span class="dot" style="left:78%;top:32%;background:var(--blue-600)"></span>
-                  <span class="dot" style="left:40%;top:48%;background:var(--amber-600)"></span>
-                </div>
+                <div id="admin-inventory-map" style="min-height:220px;height:220px;border-radius:var(--r-m);border:1px solid var(--line);overflow:hidden;position:relative;z-index:1"></div>
                 <div class="hbar" style="margin-top:14px">
                   <div class="r"><span>California</span><span class="track"><i style="width:92%"></i></span><span
                       data-num class="mono">28.4k</span></div>
@@ -2278,16 +2329,13 @@
                   <h4>Latest properties</h4><a class="hint" href="#/properties" data-nav-link="properties">All →</a>
                 </div>
                 <div style="padding:6px 0">
-                  <div style="display:flex;gap:11px;align-items:center;padding:8px 16px"><span
-                      class="thumb"></span><span style="flex:1"><span class="cellmain" style="font-size:12.5px">Fernwood
+                  <div style="display:flex;gap:11px;align-items:center;padding:8px 16px"><img src="assets/prop-1.jpg" alt="Fernwood Court" style="width:38px;height:30px;border-radius:6px;object-fit:cover;flex:none;border:1px solid var(--line)"><span style="flex:1"><span class="cellmain" style="font-size:12.5px">Fernwood
                         Court</span><br><span class="cellsub">Sacramento, CA · LIHTC</span></span><span
                       class="badge s-pend"><i></i>Pending</span></div>
-                  <div style="display:flex;gap:11px;align-items:center;padding:8px 16px"><span
-                      class="thumb t2"></span><span style="flex:1"><span class="cellmain" style="font-size:12.5px">Mesa
+                  <div style="display:flex;gap:11px;align-items:center;padding:8px 16px"><img src="assets/prop-2.jpg" alt="Mesa Verde Homes" style="width:38px;height:30px;border-radius:6px;object-fit:cover;flex:none;border:1px solid var(--line)"><span style="flex:1"><span class="cellmain" style="font-size:12.5px">Mesa
                         Verde Homes</span><br><span class="cellsub">Phoenix, AZ · Section 8</span></span><span
                       class="badge s-live"><i></i>Published</span></div>
-                  <div style="display:flex;gap:11px;align-items:center;padding:8px 16px"><span
-                      class="thumb t3"></span><span style="flex:1"><span class="cellmain"
+                  <div style="display:flex;gap:11px;align-items:center;padding:8px 16px"><img src="assets/prop-3.jpg" alt="Harborview Senior" style="width:38px;height:30px;border-radius:6px;object-fit:cover;flex:none;border:1px solid var(--line)"><span style="flex:1"><span class="cellmain"
                         style="font-size:12.5px">Harborview Senior</span><br><span class="cellsub">Tacoma, WA · Sec.
                         202</span></span><span class="badge s-live"><i></i>Published</span></div>
                 </div>
@@ -2297,17 +2345,14 @@
                   <h4>Latest users</h4><a class="hint" href="#/users" data-nav-link="users">All →</a>
                 </div>
                 <div style="padding:6px 0">
-                  <div style="display:flex;gap:11px;align-items:center;padding:8px 16px"><span class="avatar-s"
-                      style="background:linear-gradient(140deg,var(--blue-600),var(--green-600))">MR</span><span
+                  <div style="display:flex;gap:11px;align-items:center;padding:8px 16px"><img src="assets/avatar-maria.jpg" alt="Maria Reyes" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex:none;border:1px solid var(--line)"><span
                       style="flex:1"><span class="cellmain" style="font-size:12.5px">Maria Reyes</span><br><span
                         class="cellsub">Consumer · Sacramento</span></span><span class="hint mono">2 min</span></div>
-                  <div style="display:flex;gap:11px;align-items:center;padding:8px 16px"><span class="avatar-s"
-                      style="background:linear-gradient(140deg,var(--violet-600),var(--blue-600))">BH</span><span
+                  <div style="display:flex;gap:11px;align-items:center;padding:8px 16px"><img src="assets/avatar-bridge-housing.jpg" alt="BRIDGE Housing" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex:none;border:1px solid var(--line)"><span
                       style="flex:1"><span class="cellmain" style="font-size:12.5px">BRIDGE Housing</span><br><span
                         class="cellsub">Property manager · verified</span></span><span class="hint mono">18 min</span>
                   </div>
-                  <div style="display:flex;gap:11px;align-items:center;padding:8px 16px"><span class="avatar-s"
-                      style="background:linear-gradient(140deg,var(--amber-600),var(--green-600))">DW</span><span
+                  <div style="display:flex;gap:11px;align-items:center;padding:8px 16px"><img src="assets/avatar-darnell.jpg" alt="Darnell Woods" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex:none;border:1px solid var(--line)"><span
                       style="flex:1"><span class="cellmain" style="font-size:12.5px">Darnell Woods</span><br><span
                         class="cellsub">Consumer · Columbus</span></span><span class="hint mono">31 min</span></div>
                 </div>
@@ -2396,7 +2441,7 @@
                   <tr>
                     <td><input type="checkbox" aria-label="Select Cedar Grove Commons"></td>
                     <td>
-                      <div style="display:flex;gap:11px;align-items:center"><span class="thumb"></span><span><span
+                      <div style="display:flex;gap:11px;align-items:center"><img src="assets/prop-1.jpg" alt="Property thumbnail" style="width:44px;height:34px;border-radius:6px;object-fit:cover;flex:none;border:1px solid var(--line)"><span><span
                             class="cellmain">Cedar Grove Commons</span>
                           <div class="cellsub mono">PRP-88213 · Sacramento, CA 95833</div>
                         </span></div>
@@ -2419,7 +2464,7 @@
                   <tr>
                     <td><input type="checkbox" aria-label="Select Fernwood Court"></td>
                     <td>
-                      <div style="display:flex;gap:11px;align-items:center"><span class="thumb t2"></span><span><span
+                      <div style="display:flex;gap:11px;align-items:center"><img src="assets/prop-2.jpg" alt="Property thumbnail" style="width:44px;height:34px;border-radius:6px;object-fit:cover;flex:none;border:1px solid var(--line)"><span><span
                             class="cellmain">Fernwood Court</span>
                           <div class="cellsub mono">PRP-90142 · Sacramento, CA 95820</div>
                         </span></div>
@@ -2439,7 +2484,7 @@
                   <tr>
                     <td><input type="checkbox" aria-label="Select Mesa Verde Homes"></td>
                     <td>
-                      <div style="display:flex;gap:11px;align-items:center"><span class="thumb t3"></span><span><span
+                      <div style="display:flex;gap:11px;align-items:center"><img src="assets/prop-3.jpg" alt="Property thumbnail" style="width:44px;height:34px;border-radius:6px;object-fit:cover;flex:none;border:1px solid var(--line)"><span><span
                             class="cellmain">Mesa Verde Homes</span>
                           <div class="cellsub mono">PRP-90031 · Phoenix, AZ 85008</div>
                         </span></div>
@@ -2460,7 +2505,7 @@
                   <tr>
                     <td><input type="checkbox" aria-label="Select Union Square Lofts"></td>
                     <td>
-                      <div style="display:flex;gap:11px;align-items:center"><span class="thumb"></span><span><span
+                      <div style="display:flex;gap:11px;align-items:center"><img src="assets/prop-4.jpg" alt="Property thumbnail" style="width:44px;height:34px;border-radius:6px;object-fit:cover;flex:none;border:1px solid var(--line)"><span><span
                             class="cellmain">Union Square Lofts</span>
                           <div class="cellsub mono">PRP-87455 · Newark, NJ 07102</div>
                         </span></div>
@@ -2480,7 +2525,7 @@
                   <tr>
                     <td><input type="checkbox" aria-label="Select Harborview Senior"></td>
                     <td>
-                      <div style="display:flex;gap:11px;align-items:center"><span class="thumb t2"></span><span><span
+                      <div style="display:flex;gap:11px;align-items:center"><img src="assets/prop-5.jpg" alt="Property thumbnail" style="width:44px;height:34px;border-radius:6px;object-fit:cover;flex:none;border:1px solid var(--line)"><span><span
                             class="cellmain">Harborview Senior Residences</span>
                           <div class="cellsub mono">PRP-86917 · Tacoma, WA 98402</div>
                         </span></div>
@@ -2501,7 +2546,7 @@
                   <tr>
                     <td><input type="checkbox" aria-label="Select Prairie Rose Homes"></td>
                     <td>
-                      <div style="display:flex;gap:11px;align-items:center"><span class="thumb t3"></span><span><span
+                      <div style="display:flex;gap:11px;align-items:center"><img src="assets/prop-6.jpg" alt="Property thumbnail" style="width:44px;height:34px;border-radius:6px;object-fit:cover;flex:none;border:1px solid var(--line)"><span><span
                             class="cellmain">Prairie Rose Homes</span>
                           <div class="cellsub mono">PRP-85102 · Fargo, ND 58103</div>
                         </span></div>
@@ -2603,8 +2648,7 @@
                       <option>Sacramento County, CA — 100% AMI $129,000</option>
                     </select></div>
                 </div>
-                <div class="gmap" style="min-height:150px"><span class="dot"
-                    style="left:52%;top:46%;background:var(--blue-600)"></span></div>
+                <div id="admin-prop-map" style="min-height:180px;height:180px;border-radius:var(--r-m);border:1px solid var(--line);overflow:hidden;position:relative;z-index:1"></div>
               </div>
 
               <div class="card pad" style="display:grid;gap:14px">
@@ -2727,10 +2771,8 @@
               <div class="card pad" style="display:grid;gap:10px">
                 <h4>Media <span class="hint mono">18 images</span></h4>
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-                  <span class="thumb" style="width:100%;height:52px"></span><span class="thumb t2"
-                    style="width:100%;height:52px"></span><span class="thumb t3" style="width:100%;height:52px"></span>
-                  <span class="thumb t3" style="width:100%;height:52px"></span><span class="thumb"
-                    style="width:100%;height:52px"></span>
+                  <img src="assets/prop-1.jpg" alt="Photo 1" style="width:100%;height:52px;border-radius:6px;object-fit:cover;border:1px solid var(--line)"><img src="assets/prop-2.jpg" alt="Photo 2" style="width:100%;height:52px;border-radius:6px;object-fit:cover;border:1px solid var(--line)"><img src="assets/prop-3.jpg" alt="Photo 3" style="width:100%;height:52px;border-radius:6px;object-fit:cover;border:1px solid var(--line)">
+                  <img src="assets/prop-4.jpg" alt="Photo 4" style="width:100%;height:52px;border-radius:6px;object-fit:cover;border:1px solid var(--line)"><img src="assets/prop-5.jpg" alt="Photo 5" style="width:100%;height:52px;border-radius:6px;object-fit:cover;border:1px solid var(--line)">
                   <button class="btn btn-out" style="height:52px;justify-content:center"><svg>
                       <use href="#i-img" />
                     </svg>+13</button>
@@ -3027,8 +3069,7 @@
                     <tr>
                       <td><input type="checkbox" aria-label="Select Maria Reyes"></td>
                       <td>
-                        <div style="display:flex;gap:10px;align-items:center"><span class="avatar-s"
-                            style="background:linear-gradient(140deg,var(--blue-600),var(--green-600))">MR</span><span><span
+                        <div style="display:flex;gap:10px;align-items:center"><img src="assets/avatar-maria.jpg" alt="Maria Reyes" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex:none;border:1px solid var(--line)"><span><span
                               class="cellmain">Maria Reyes</span>
                             <div class="cellsub mono">maria@example.com · USR-30412</div>
                           </span></div>
@@ -3048,8 +3089,7 @@
                     <tr>
                       <td><input type="checkbox" aria-label="Select Darnell Woods"></td>
                       <td>
-                        <div style="display:flex;gap:10px;align-items:center"><span class="avatar-s"
-                            style="background:linear-gradient(140deg,var(--amber-600),var(--green-600))">DW</span><span><span
+                        <div style="display:flex;gap:10px;align-items:center"><img src="assets/avatar-darnell.jpg" alt="Darnell Woods" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex:none;border:1px solid var(--line)"><span><span
                               class="cellmain">Darnell Woods</span>
                             <div class="cellsub mono">dwoods@example.com · USR-30208</div>
                           </span></div>
@@ -3069,8 +3109,7 @@
                     <tr>
                       <td><input type="checkbox" aria-label="Select spam account"></td>
                       <td>
-                        <div style="display:flex;gap:10px;align-items:center"><span class="avatar-s"
-                            style="background:var(--faint)">?</span><span><span class="cellmain">craigs.deals.4u</span>
+                        <div style="display:flex;gap:10px;align-items:center"><span class="avatar-s" style="background:#fee2e2;color:#b91c1c;font-weight:700;border:1px solid #fca5a5">!</span><span><span class="cellmain">craigs.deals.4u</span>
                             <div class="cellsub mono">promo88@spamdomain.io · USR-29914</div>
                           </span></div>
                       </td>
@@ -3088,8 +3127,7 @@
                     <tr>
                       <td><input type="checkbox" aria-label="Select Gloria Lindo"></td>
                       <td>
-                        <div style="display:flex;gap:10px;align-items:center"><span class="avatar-s"
-                            style="background:linear-gradient(140deg,var(--violet-600),var(--blue-600))">GL</span><span><span
+                        <div style="display:flex;gap:10px;align-items:center"><img src="assets/avatar-gloria.jpg" alt="Gloria Lindo" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex:none;border:1px solid var(--line)"><span><span
                               class="cellmain">Gloria Lindo</span>
                             <div class="cellsub mono">gloria.l@example.com · USR-28840</div>
                           </span></div>
@@ -3115,8 +3153,7 @@
               </div>
             </div>
             <div class="card pad">
-              <div style="display:flex;gap:11px;align-items:center;margin-bottom:12px"><span class="avatar-s"
-                  style="width:38px;height:38px;font-size:13px;background:linear-gradient(140deg,var(--blue-600),var(--green-600))">MR</span>
+              <div style="display:flex;gap:11px;align-items:center;margin-bottom:12px"><img src="assets/avatar-maria.jpg" alt="Maria Reyes" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex:none;border:1px solid var(--line)">
                 <div><b>Maria Reyes</b>
                   <div class="hint mono">USR-30412 · Sacramento, CA</div>
                 </div><span style="margin-left:auto" class="badge s-live"><i></i>Active</span>
@@ -3181,9 +3218,7 @@
                       <td><span class="cellmain mono">CLM-2496</span>
                         <div class="cellsub">BRIDGE Housing · verified org</div>
                       </td>
-                      <td><span class="cellmain">Fernwood Court</span>
-                        <div class="cellsub">Sacramento, CA</div>
-                      </td>
+                      <td><div style="display:flex;gap:9px;align-items:center"><img src="assets/prop-1.jpg" alt="Fernwood Court" style="width:34px;height:26px;border-radius:4px;object-fit:cover;border:1px solid var(--line)"><span><span class="cellmain">Fernwood Court</span><div class="cellsub">Sacramento, CA</div></span></div></td>
                       <td><span class="badge s-info">3 docs</span></td>
                       <td><span class="badge s-err">62h</span></td>
                       <td><button class="btn btn-out btn-sm">Open</button></td>
@@ -3192,9 +3227,7 @@
                       <td><span class="cellmain mono">CLM-2495</span>
                         <div class="cellsub">Mercy Housing SW</div>
                       </td>
-                      <td><span class="cellmain">Mesa Verde Homes</span>
-                        <div class="cellsub">Phoenix, AZ</div>
-                      </td>
+                      <td><div style="display:flex;gap:9px;align-items:center"><img src="assets/prop-2.jpg" alt="Mesa Verde Homes" style="width:34px;height:26px;border-radius:4px;object-fit:cover;border:1px solid var(--line)"><span><span class="cellmain">Mesa Verde Homes</span><div class="cellsub">Phoenix, AZ</div></span></div></td>
                       <td><span class="badge s-info">2 docs</span></td>
                       <td><span class="badge s-pend">51h</span></td>
                       <td><button class="btn btn-out btn-sm">Open</button></td>
@@ -3351,9 +3384,8 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <td><span class="cellmain">BRIDGE Housing · Sacramento</span>
-                      <div class="cellsub mono">PMO-0041 · joined 2024</div>
-                    </td>
+                    <td><div style="display:flex;gap:10px;align-items:center"><img src="assets/avatar-bridge-housing.jpg" alt="BRIDGE Housing" style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:1px solid var(--line)"><span><span class="cellmain">BRIDGE Housing · Sacramento</span>
+                      <div class="cellsub mono">PMO-0041 · joined 2024</div></span></div></td>
                     <td><span class="badge s-live"><i></i>Verified</span></td>
                     <td><span class="badge s-viol">Premium</span></td>
                     <td data-num class="mono">12</td>
@@ -3369,9 +3401,8 @@
                     </td>
                   </tr>
                   <tr>
-                    <td><span class="cellmain">Mercy Housing Southwest</span>
-                      <div class="cellsub mono">PMO-0087 · joined 2024</div>
-                    </td>
+                    <td><div style="display:flex;gap:10px;align-items:center"><img src="assets/prop-2.jpg" alt="Mercy Housing" style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:1px solid var(--line)"><span><span class="cellmain">Mercy Housing Southwest</span>
+                      <div class="cellsub mono">PMO-0087 · joined 2024</div></span></div></td>
                     <td><span class="badge s-live"><i></i>Verified</span></td>
                     <td><span class="badge s-ink">Portfolio</span></td>
                     <td data-num class="mono">214</td>
@@ -3486,9 +3517,8 @@
                   </thead>
                   <tbody>
                     <tr style="background:var(--blue-050)">
-                      <td><span class="cellmain">Section 8 · Housing Choice Voucher</span>
-                        <div class="cellsub mono">slug: section-8-hcv</div>
-                      </td>
+                      <td><div style="display:flex;gap:10px;align-items:center"><img src="assets/prog-sec8.jpg" alt="Section 8" style="width:36px;height:28px;border-radius:5px;object-fit:cover;border:1px solid var(--line)"><span><span class="cellmain">Section 8 · Housing Choice Voucher</span>
+                        <div class="cellsub mono">slug: section-8-hcv</div></span></div></td>
                       <td><span class="badge s-info">Rental subsidy</span></td>
                       <td data-num class="mono">34,712</td>
                       <td><span class="badge s-live"><i></i>Active</span></td>
@@ -3497,9 +3527,8 @@
                           </svg></button></td>
                     </tr>
                     <tr>
-                      <td><span class="cellmain">LIHTC</span>
-                        <div class="cellsub mono">slug: lihtc</div>
-                      </td>
+                      <td><div style="display:flex;gap:10px;align-items:center"><img src="assets/prog-lihtc.jpg" alt="LIHTC" style="width:36px;height:28px;border-radius:5px;object-fit:cover;border:1px solid var(--line)"><span><span class="cellmain">LIHTC</span>
+                        <div class="cellsub mono">slug: lihtc</div></span></div></td>
                       <td><span class="badge s-info">Income-restricted</span></td>
                       <td data-num class="mono">52,640</td>
                       <td><span class="badge s-live"><i></i>Active</span></td>
@@ -3508,7 +3537,7 @@
                           </svg></button></td>
                     </tr>
                     <tr>
-                      <td><span class="cellmain">HOME Investment Partnerships</span>
+                      <td><div style="display:flex;gap:10px;align-items:center"><img src="assets/prog-home.jpg" alt="HOME" style="width:36px;height:28px;border-radius:5px;object-fit:cover;border:1px solid var(--line)"><span><span class="cellmain">HOME Investment Partnerships</span>
                         <div class="cellsub mono">slug: home</div>
                       </td>
                       <td><span class="badge s-info">Income-restricted</span></td>
@@ -3806,11 +3835,8 @@
               <div class="card pad">
                 <h4 style="margin-bottom:10px">Media library</h4>
                 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px">
-                  <span class="thumb" style="width:100%;height:44px"></span><span class="thumb t2"
-                    style="width:100%;height:44px"></span><span class="thumb t3"
-                    style="width:100%;height:44px"></span><span class="thumb" style="width:100%;height:44px"></span>
-                  <span class="thumb t3" style="width:100%;height:44px"></span><span class="thumb t2"
-                    style="width:100%;height:44px"></span><span class="thumb" style="width:100%;height:44px"></span>
+                  <img src="assets/res-checklist.jpg" alt="Media asset 1" style="width:100%;height:44px;border-radius:6px;object-fit:cover;border:1px solid var(--line)"><img src="assets/res-interview.jpg" alt="Media asset 2" style="width:100%;height:44px;border-radius:6px;object-fit:cover;border:1px solid var(--line)"><img src="assets/res-sec8.jpg" alt="Media asset 3" style="width:100%;height:44px;border-radius:6px;object-fit:cover;border:1px solid var(--line)"><img src="assets/res-scam.jpg" alt="Media asset 4" style="width:100%;height:44px;border-radius:6px;object-fit:cover;border:1px solid var(--line)">
+                  <img src="assets/res-waitlist.jpg" alt="Media asset 5" style="width:100%;height:44px;border-radius:6px;object-fit:cover;border:1px solid var(--line)"><img src="assets/res-disability.jpg" alt="Media asset 6" style="width:100%;height:44px;border-radius:6px;object-fit:cover;border:1px solid var(--line)"><img src="assets/city-sac.jpg" alt="Media asset 7" style="width:100%;height:44px;border-radius:6px;object-fit:cover;border:1px solid var(--line)">
                   <button class="btn btn-out" style="height:44px;justify-content:center;font-size:11px">+1,240</button>
                 </div>
                 <p class="hint" style="margin-top:9px"><span class="mono">2.4 GB</span> of 10 GB · WebP auto-conversion
@@ -3862,9 +3888,8 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <td><span class="cellmain">First-time renter's checklist</span>
-                      <div class="cellsub mono">RES-014 · 6 pages</div>
-                    </td>
+                    <td><div style="display:flex;gap:10px;align-items:center"><img src="assets/res-checklist.jpg" alt="Checklist" style="width:36px;height:28px;border-radius:5px;object-fit:cover;border:1px solid var(--line)"><span><span class="cellmain">First-time renter's checklist</span>
+                      <div class="cellsub mono">RES-014 · 6 pages</div></span></div></td>
                     <td><span class="badge s-info">PDF</span></td>
                     <td><span class="hint mono">EN ES HMN RU</span></td>
                     <td data-num class="mono">4,882</td>
@@ -3878,9 +3903,8 @@
                     </td>
                   </tr>
                   <tr>
-                    <td><span class="cellmain">How to apply with a voucher (video)</span>
-                      <div class="cellsub mono">RES-021 · 4:32</div>
-                    </td>
+                    <td><div style="display:flex;gap:10px;align-items:center"><img src="assets/res-sec8.jpg" alt="Voucher video" style="width:36px;height:28px;border-radius:5px;object-fit:cover;border:1px solid var(--line)"><span><span class="cellmain">How to apply with a voucher (video)</span>
+                      <div class="cellsub mono">RES-021 · 4:32</div></span></div></td>
                     <td><span class="badge s-viol">Video</span></td>
                     <td><span class="hint mono">EN ES · captions</span></td>
                     <td data-num class="mono">3,204</td>
@@ -3895,8 +3919,7 @@
                   </tr>
                   <tr>
                     <td><span class="cellmain">Income documents you'll need</span>
-                      <div class="cellsub mono">RES-009 · 2 pages</div>
-                    </td>
+                      <div class="cellsub mono">RES-009 · 2 pages</div></span></div></td>
                     <td><span class="badge s-info">Checklist</span></td>
                     <td><span class="hint mono">EN ES</span></td>
                     <td data-num class="mono">2,977</td>
@@ -4300,11 +4323,10 @@
               </div>
               <div style="padding:16px 18px;display:grid;gap:12px">
                 <div class="field"><label>Subject</label><input class="input"
-                    value="Welcome to Doorway, {{first_name}} — let's find your place"></div>
+                    value="Welcome to Apartment Bridge, {{first_name}} — let's find your place"></div>
                 <div style="border:1px solid var(--line);border-radius:10px;overflow:hidden">
                   <div
-                    style="background:linear-gradient(135deg,var(--blue-700),var(--green-700));padding:22px;text-align:center;color:#fff;font:800 17px var(--disp)">
-                    Doorway</div>
+                    style="background:linear-gradient(135deg,var(--blue-700),var(--green-700));padding:22px;text-align:center;color:#fff;font:800 17px var(--disp)">Apartment Bridge</div>
                   <div style="padding:18px;font-size:12.5px;display:grid;gap:9px">
                     <b>Hi {{first_name}},</b>
                     <p style="color:var(--mut)">Your account is ready. Tell us your household size and income once, and
@@ -4312,7 +4334,7 @@
                     <span
                       style="justify-self:center;background:var(--green-600);color:#fff;font-weight:700;border-radius:8px;padding:9px 16px;font-size:12px">Check
                       my eligibility</span>
-                    <p class="hint">You're getting this because you created an account at doorway.example. Unsubscribe
+                    <p class="hint">You're getting this because you created an account at apartmentbridge.org. Unsubscribe
                       anytime.</p>
                   </div>
                 </div>
@@ -4368,7 +4390,7 @@
               <table class="tbl">
                 <thead>
                   <tr>
-                    <th class="sort">Time</th>
+                    <th class="sort" style="width:110px">Time</th>
                     <th>Actor</th>
                     <th>Action</th>
                     <th>Entity</th>
@@ -4378,7 +4400,7 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <td class="mono" data-num>08:36:12</td>
+                    <td class="mono" style="font-weight:600">08:36:12</td>
                     <td><span class="hint mono">import-bot</span></td>
                     <td>HUD sync completed · 1,292 rows</td>
                     <td><span class="code">JOB-9930</span></td>
@@ -4388,7 +4410,7 @@
                         </svg></button></td>
                   </tr>
                   <tr>
-                    <td class="mono" data-num>08:12:44</td>
+                    <td class="mono" style="font-weight:600">08:12:44</td>
                     <td><b style="font-size:12px">j.okafor</b></td>
                     <td>Approved claim → transferred listing control</td>
                     <td><span class="code">CLM-2481</span></td>
@@ -4398,7 +4420,7 @@
                         </svg></button></td>
                   </tr>
                   <tr>
-                    <td class="mono" data-num>08:02:19</td>
+                    <td class="mono" style="font-weight:600">08:02:19</td>
                     <td><b style="font-size:12px">s.patel</b></td>
                     <td>Edited income limits (manual override)</td>
                     <td><span class="code">PRP-88213</span></td>
@@ -4408,7 +4430,7 @@
                         </svg></button></td>
                   </tr>
                   <tr style="background:var(--red-050)">
-                    <td class="mono" data-num>07:41:03</td>
+                    <td class="mono" style="font-weight:600">07:41:03</td>
                     <td><span class="hint mono">system</span></td>
                     <td>3 failed logins → IP blocked 30 min</td>
                     <td><span class="code mono">198.51.100.7</span></td>
@@ -4418,7 +4440,7 @@
                         </svg></button></td>
                   </tr>
                   <tr>
-                    <td class="mono" data-num>07:15:58</td>
+                    <td class="mono" style="font-weight:600">07:15:58</td>
                     <td><b style="font-size:12px">m.torres</b></td>
                     <td>Published article</td>
                     <td><span class="code">ART-064</span></td>
@@ -4428,7 +4450,7 @@
                         </svg></button></td>
                   </tr>
                   <tr>
-                    <td class="mono" data-num>06:00:02</td>
+                    <td class="mono" style="font-weight:600">06:00:02</td>
                     <td><span class="hint mono">scheduler</span></td>
                     <td>Started LIHTC full sync</td>
                     <td><span class="code">JOB-9929</span></td>
@@ -4591,9 +4613,9 @@
               <div class="card pad" style="display:grid;gap:12px">
                 <h4>General</h4>
                 <div class="field"><label for="st-name">Platform name</label><input class="input" id="st-name"
-                    value="Doorway"></div>
+                    value="Apartment Bridge"></div>
                 <div class="field"><label for="st-url">Public URL</label><input class="input mono" id="st-url"
-                    value="https://doorway.example"></div>
+                    value="https://apartmentbridge.org"></div>
                 <div class="field"><label for="st-tz">Default timezone</label><select class="select" id="st-tz">
                     <option>America/Los_Angeles</option>
                     <option>America/New_York</option>
@@ -4615,9 +4637,9 @@
                       </svg>Replace</button><span class="hint mono">SVG · 24 KB</span></div>
                 </div>
                 <div class="field"><label for="st-title">Default title tag</label><input class="input" id="st-title"
-                    value="Doorway — Affordable homes you actually qualify for"></div>
+                    value="Apartment Bridge — Affordable homes you actually qualify for"></div>
                 <div class="field"><label for="st-theme">Consumer theme</label><select class="select" id="st-theme">
-                    <option>Doorway green/blue (default)</option>
+                    <option>Apartment Bridge green/blue (default)</option>
                     <option>High-contrast</option>
                   </select></div>
               </div>
@@ -4685,7 +4707,7 @@
                   <span><b>Require 2FA for all admins</b></span><span class="toggle"><input type="checkbox" checked
                       aria-label="2FA"><i></i></span></div>
                 <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px"><span><b>SSO
-                      (SAML)</b><br><span class="hint mono">idp.doorway.example</span></span><span class="toggle"><input
+                      (SAML)</b><br><span class="hint mono">idp.apartmentbridge.org</span></span><span class="toggle"><input
                       type="checkbox" checked aria-label="SSO"><i></i></span></div>
                 <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px">
                   <span><b>Session timeout</b></span><select class="select" style="width:auto">
@@ -4705,120 +4727,6 @@
         </section>
 
         <!-- ================= DESIGN SYSTEM ================= -->
-        <section class="pane" id="p-design" data-title="Design System">
-          <div class="phead">
-            <div>
-              <h1>Design System</h1>
-              <p class="sub">Doorway Ops components · IBM Plex Sans / Plex Mono · every number speaks mono</p>
-            </div>
-          </div>
-          <div class="grid g2" style="align-items:start">
-            <div style="display:grid;gap:14px">
-              <div class="card pad" style="display:grid;gap:12px">
-                <h4>Buttons</h4>
-                <div class="pill-row"><button class="btn btn-pri">Primary</button><button class="btn btn-grn"><svg>
-                      <use href="#i-check" />
-                    </svg>Approve</button><button class="btn btn-out">Secondary</button><button
-                    class="btn btn-gh">Ghost</button><button class="btn btn-dgr"><svg>
-                      <use href="#i-trash" />
-                    </svg>Destructive</button><button class="btn btn-pri btn-sm">Small</button></div>
-              </div>
-              <div class="card pad" style="display:grid;gap:12px">
-                <h4>Status badges</h4>
-                <div class="pill-row"><span class="badge s-live"><i></i>Published</span><span
-                    class="badge s-pend"><i></i>Pending</span><span class="badge s-draft"><i></i>Draft</span><span
-                    class="badge s-err"><i></i>Error</span><span class="badge s-info">Info</span><span
-                    class="badge s-viol">Premium</span><span class="badge s-ink">Portfolio</span></div>
-              </div>
-              <div class="card pad" style="display:grid;gap:12px">
-                <h4>Form controls</h4>
-                <div class="grid g2">
-                  <div class="field"><label>Text input</label><input class="input" placeholder="Placeholder"></div>
-                  <div class="field"><label>Select</label><select class="select">
-                      <option>Option A</option>
-                    </select></div>
-                </div>
-                <label class="check"><input type="checkbox" checked>Checkbox option</label>
-                <div style="display:flex;gap:10px;align-items:center;font-size:12.5px"><span class="toggle"><input
-                      type="checkbox" checked aria-label="Demo toggle"><i></i></span>Toggle switch</div>
-                <div class="field"><label>With validation error</label><input class="input"
-                    style="border-color:var(--red-600)" value="not-an-email">
-                  <p class="hint" style="color:var(--red-700)">Enter a valid email address — like name@agency.org.</p>
-                </div>
-              </div>
-              <div class="card pad" style="display:grid;gap:12px">
-                <h4>Alerts</h4>
-                <div class="alert a-info"><svg>
-                    <use href="#i-zap" />
-                  </svg><span><b>Heads up:</b> income tables refresh with FY publications.</span></div>
-                <div class="alert a-ok"><svg>
-                    <use href="#i-check" />
-                  </svg><span><b>Import complete.</b> 1,292 rows processed with 0 errors.</span></div>
-                <div class="alert a-warn"><svg>
-                    <use href="#i-warn" />
-                  </svg><span><b>17 rows held.</b> Review validation errors to publish them.</span></div>
-                <div class="alert a-bad"><svg>
-                    <use href="#i-warn" />
-                  </svg><span><b>Sync failed.</b> LIHTC endpoint timed out — retrying in 5 min.</span></div>
-              </div>
-            </div>
-            <div style="display:grid;gap:14px">
-              <div class="card">
-                <div class="chead">
-                  <h4>Loading state</h4><span class="hint">skeleton</span>
-                </div>
-                <div style="padding:16px 18px;display:grid;gap:10px">
-                  <div class="skl" style="height:14px;width:45%"></div>
-                  <div class="skl" style="height:11px;width:90%"></div>
-                  <div class="skl" style="height:11px;width:76%"></div>
-                  <div style="display:flex;gap:10px;margin-top:4px">
-                    <div class="skl" style="height:52px;flex:1"></div>
-                    <div class="skl" style="height:52px;flex:1"></div>
-                    <div class="skl" style="height:52px;flex:1"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="card">
-                <div class="chead">
-                  <h4>Empty state</h4>
-                </div>
-                <div class="empty">
-                  <span class="art"><svg>
-                      <use href="#i-inbox" />
-                    </svg></span>
-                  <b>No claim requests right now</b>
-                  <p>When a property manager claims a listing, it lands here for verification.</p>
-                  <button class="btn btn-out btn-sm">Learn how claims work</button>
-                </div>
-              </div>
-              <div class="card">
-                <div class="chead">
-                  <h4>Error state</h4>
-                </div>
-                <div class="empty">
-                  <span class="art" style="color:var(--red-600);border-color:var(--red-600)"><svg>
-                      <use href="#i-warn" />
-                    </svg></span>
-                  <b>Couldn't load this report</b>
-                  <p>The analytics service didn't respond in 10 seconds. Your filters are kept.</p>
-                  <button class="btn btn-pri btn-sm"><svg>
-                      <use href="#i-refresh" />
-                    </svg>Try again</button>
-                </div>
-              </div>
-              <div class="card pad" style="display:grid;gap:10px">
-                <h4>Type &amp; data voice</h4>
-                <p style="font:700 19px/1.2 var(--ui)">UI heading — Plex Sans 700</p>
-                <p style="font-size:12.5px;color:var(--mut)">Body text — Plex Sans 400, 13.5px, comfortable line height
-                  for dense screens.</p>
-                <p class="mono" style="font-size:13px">Data voice — Plex Mono: 128,412 · $61,240 · PRP-88213 · 08:36:12
-                </p>
-                <p class="hint">Rule: if it's a number, an ID, or a timestamp, it speaks mono. That's how you scan an
-                  ops screen.</p>
-              </div>
-            </div>
-          </div>
-        </section>
 
       </main>
     </div><!-- /main -->
@@ -4832,7 +4740,7 @@
           </svg></button></div>
       <div class="mb" style="display:grid;gap:12px">
         <div class="field"><label for="im-email">Work email</label><input class="input" id="im-email"
-            placeholder="name@doorway.example"></div>
+            placeholder="name@apartmentbridge.org"></div>
         <div class="field"><label for="im-role">Role</label><select class="select" id="im-role">
             <option>Support Staff</option>
             <option>Content Admin</option>
@@ -4858,19 +4766,166 @@
     </svg><span id="toastMsg">Saved</span></div>
 
   <script>
-    /* ============ Doorway Ops · app shell ============ */
+
+    /* ============ Admin Authentication & User Dropdown ============ */
+    let isAdminLoggedIn = false;
+    try {
+      isAdminLoggedIn = sessionStorage.getItem('ab_admin_auth') === 'true';
+    } catch(e) {}
+
+    function checkAdminAuth() {
+      const loginScr = document.getElementById('adminLoginScreen');
+      const shell = document.getElementById('adminShell');
+      if (!loginScr || !shell) return;
+      if (!isAdminLoggedIn) {
+        loginScr.style.display = 'grid';
+        shell.style.display = 'none';
+      } else {
+        loginScr.style.display = 'none';
+        shell.style.display = 'grid';
+        initAdminMaps();
+        refreshAdminMaps();
+      }
+    }
+
+    function handleAdminLogin(e) {
+      if (e) e.preventDefault();
+      isAdminLoggedIn = true;
+      try {
+        sessionStorage.setItem('ab_admin_auth', 'true');
+      } catch(e) {}
+      checkAdminAuth();
+      go('dashboard');
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      if (toast && toastMsg) {
+        toastMsg.textContent = 'Welcome back, Terrence (Super Admin)';
+        toast.classList.add('on');
+        setTimeout(() => toast.classList.remove('on'), 3000);
+      }
+    }
+
+    function adminLogout() {
+      isAdminLoggedIn = false;
+      try {
+        sessionStorage.removeItem('ab_admin_auth');
+      } catch(e) {}
+      closeAdminUserDropdown();
+      checkAdminAuth();
+      try { history.replaceState(null, "", "admin.html") } catch(e) {}
+    }
+
+    function toggleAdminUserDropdown(e) {
+      if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+      const dd = document.getElementById('adminUserDropdown');
+      const btn = document.getElementById('adminAvatarBtn');
+      if (dd) {
+        const isOpen = dd.style.display === 'block';
+        dd.style.display = isOpen ? 'none' : 'block';
+        if (btn) btn.style.borderColor = isOpen ? 'transparent' : 'var(--blue-600)';
+      }
+    }
+
+    function closeAdminUserDropdown() {
+      const dd = document.getElementById('adminUserDropdown');
+      const btn = document.getElementById('adminAvatarBtn');
+      if (dd) dd.style.display = 'none';
+      if (btn) btn.style.borderColor = 'transparent';
+    }
+
+    document.addEventListener('click', e => {
+      if (!e.target.closest('#adminUserMenuWrap')) {
+        closeAdminUserDropdown();
+      }
+    });
+
+
+    /* ============ Leaflet OpenStreetMap Engine ============ */
+    let adminInventoryMap = null;
+    let adminPropMap = null;
+
+    function initAdminMaps() {
+      if (typeof L === 'undefined') return;
+      const osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+      const osmAttr = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors · HUD GIS';
+
+      // 1. Dashboard Inventory Heat Map
+      const invEl = document.getElementById('admin-inventory-map');
+      if (invEl && !adminInventoryMap) {
+        adminInventoryMap = L.map('admin-inventory-map', { 
+          scrollWheelZoom: false,
+          zoomControl: true,
+          attributionControl: false
+        }).setView([38.5, -96.5], 4);
+
+        L.tileLayer(osmUrl, { maxZoom: 18 }).addTo(adminInventoryMap);
+
+        const metros = [
+          { name: "California (Sacramento)", lat: 38.5816, lng: -121.4944, count: "28.4k", tier: "60% AMI tier" },
+          { name: "Texas (Houston)", lat: 29.7604, lng: -95.3698, count: "24.1k", tier: "Sec 8 / LIHTC" },
+          { name: "Ohio (Columbus)", lat: 39.9612, lng: -82.9988, count: "15.8k", tier: "Workforce" },
+          { name: "Arizona (Phoenix)", lat: 33.4484, lng: -112.0740, count: "11.3k", tier: "Sec 202 Senior" },
+          { name: "Colorado (Denver)", lat: 39.7392, lng: -104.9903, count: "9.7k", tier: "HOME / 80%" },
+          { name: "Washington (Tacoma)", lat: 47.2529, lng: -122.4443, count: "9.2k", tier: "LIHTC" }
+        ];
+
+        metros.forEach(m => {
+          const icon = L.divIcon({
+            className: 'admin-map-pin',
+            html: '<div style="background:#16283B;color:#fff;border:2px solid #2B7FC7;border-radius:12px;padding:2px 7px;font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:700;box-shadow:0 3px 8px rgba(0,0,0,0.35);white-space:nowrap;display:flex;align-items:center;gap:4px"><span style=\'width:6px;height:6px;border-radius:50%;background:#2FA271;display:inline-block\'></span>' + m.count + '</div>',
+            iconSize: [60, 24],
+            iconAnchor: [30, 12]
+          });
+          const marker = L.marker([m.lat, m.lng], { icon: icon }).addTo(adminInventoryMap);
+          marker.bindPopup('<b>' + m.name + '</b><br><span style="color:#51667A;font-size:12px">' + m.count + ' listings · ' + m.tier + '</span>');
+        });
+      }
+
+      // 2. Property Edit Location Map
+      const propEl = document.getElementById('admin-prop-map');
+      if (propEl && !adminPropMap) {
+        adminPropMap = L.map('admin-prop-map', { 
+          scrollWheelZoom: false,
+          attributionControl: false
+        }).setView([38.5816, -121.4944], 14);
+
+        L.tileLayer(osmUrl, { maxZoom: 18 }).addTo(adminPropMap);
+        const propIcon = L.divIcon({
+          className: 'admin-prop-pin',
+          html: '<div style="background:#2B7FC7;color:#fff;border:2px solid #fff;border-radius:6px;padding:3px 8px;font-family:IBM Plex Mono,monospace;font-size:11.5px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,0.3)">$748/mo</div>',
+          iconSize: [68, 24],
+          iconAnchor: [34, 12]
+        });
+        L.marker([38.5816, -121.4944], { icon: propIcon }).addTo(adminPropMap).bindPopup('<b>Fernwood Court</b><br>1420 N 10th St, Sacramento CA');
+      }
+    }
+
+    function refreshAdminMaps() {
+      setTimeout(() => {
+        if (adminInventoryMap) adminInventoryMap.invalidateSize();
+        if (adminPropMap) adminPropMap.invalidateSize();
+      }, 100);
+    }
+
+    /* ============ Apartment Bridge · app shell ============ */
     const $ = (s, c = document) => c.querySelector(s), $$ = (s, c = document) => [...c.querySelectorAll(s)];
 
     /* ---- router ---- */
     const panes = $$(".pane"), navLinks = $$("[data-nav]");
     function go(key) {
+      closeAdminUserDropdown();
       if (!$("#p-" + key)) key = "dashboard";
       panes.forEach(p => p.classList.toggle("on", p.id === "p-" + key));
       navLinks.forEach(a => a.classList.toggle("on", a.dataset.nav === key));
       try { history.replaceState(null, "", "#/" + key) } catch (e) {/* sandboxed preview blocks URL writes */ }
       $("#side").classList.remove("open");
       $("#content").scrollTop = 0; window.scrollTo({ top: 0 });
-      document.title = "Doorway Ops · " + ($("#p-" + key).dataset.title || "Admin");
+      document.title = "Apartment Bridge · " + ($("#p-" + key)?.dataset.title || "Admin");
+      initAdminMaps();
+      refreshAdminMaps();
     }
     navLinks.forEach(a => a.addEventListener("click", e => { e.preventDefault(); go(a.dataset.nav) }));
     $$("[data-nav-link]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); go(a.dataset.navLink) }));
@@ -4879,7 +4934,9 @@
     });
     let startKey = "dashboard";
     try { startKey = (location.hash.replace("#/", "") || "dashboard").replace(/[^a-z-]/g, "") || "dashboard" } catch (e) { }
-    go(startKey);
+    checkAdminAuth();
+    if (isAdminLoggedIn) go(startKey);
+    setTimeout(() => { initAdminMaps(); refreshAdminMaps(); }, 150);
 
     /* ---- burger ---- */
     $("#burger").addEventListener("click", () => $("#side").classList.toggle("open"));
